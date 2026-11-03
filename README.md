@@ -7,13 +7,6 @@ Namma Yatra is an interactive web application designed to help users discover Ka
 
 ---
 
-## 🌐 Live Demo
-
-You can try the live application directly in your browser:
-👉 **[Launch Namma Yatra Live App](https://krishnadawre10-maker.github.io/Namma-yatra-/)**
-
----
-
 ## ✨ Key Features
 
 * **Customized Itinerary Generator:** Creates multi-day travel routes across key Karnataka regions (Mysuru, Coorg, Hampi, Badami, Malnad, Coast, etc.) using curated location data.
