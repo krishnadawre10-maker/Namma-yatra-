@@ -1,0 +1,1508 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Namma Yatra</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+Kannada:wght@400;600;800&display=swap">
+
+<style>
+/* Layout: sticky nav, split hero, 3-step planner card, then a two-column results board (itinerary left; route and budget right). */
+:root{
+  --paper:#f6f0e6;
+  --surface:#fffdf8;
+  --ink:#252920;
+  --muted:#6a6e64;
+  --line:#e7dfd0;
+  --green:#1f6f50;
+  --green-deep:#154b38;
+  --on-green:#ffffff;
+  --gold:#f9b208;
+  --red:#b3202a;
+  --teal:#0e7c86;
+  --tag-ink:#76601c;
+  --shadow:0 18px 55px rgba(41,48,35,.10);
+  --serif:Georgia,"Times New Roman","Noto Sans Kannada",serif;
+  --sans:Inter,"Noto Sans Kannada",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#1d251f;--surface:#27312a;--ink:#f6f0e6;--muted:#b4b8ac;--line:#3d493e;
+    --green:#58c493;--green-deep:#7bd4aa;--on-green:#0d2419;
+    --red:#ef7078;--teal:#4cc4cf;--tag-ink:#f3d783;
+    --shadow:0 18px 55px rgba(0,0,0,.22);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#1d251f;--surface:#27312a;--ink:#f6f0e6;--muted:#b4b8ac;--line:#3d493e;
+  --green:#58c493;--green-deep:#7bd4aa;--on-green:#0d2419;
+  --red:#ef7078;--teal:#4cc4cf;--tag-ink:#f3d783;
+  --shadow:0 18px 55px rgba(0,0,0,.22);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  line-height:1.55;overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);
+  z-index:10;background:var(--paper);
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+.container{
+  width:min(1160px,100%);margin-inline:auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+@media(min-width:700px){
+  .container{
+    padding-left:max(24px,env(safe-area-inset-left,0px));
+    padding-right:max(24px,env(safe-area-inset-right,0px));
+  }
+}
+.topbar{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
+  background:color-mix(in srgb,var(--paper) 86%,transparent);
+  border-bottom:1px solid color-mix(in srgb,var(--line) 80%,transparent);
+  backdrop-filter:blur(16px);
+}
+.nav-inner{height:76px;display:flex;align-items:center;justify-content:space-between;gap:22px}
+.brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:-.03em}
+.brand-mark{
+  display:grid;place-items:center;width:42px;height:42px;border-radius:15px;
+  color:var(--on-green);background:var(--green);font-family:var(--serif);font-size:21px;
+  box-shadow:0 5px 15px rgba(31,111,80,.2)
+}
+.brand small{display:block;font-size:10px;letter-spacing:.16em;color:var(--muted);font-weight:700}
+.nav-links{display:flex;align-items:center;gap:28px;color:var(--muted);font-size:13px;font-weight:650}
+.nav-links a:hover{color:var(--green)}
+.nav-actions{display:flex;align-items:center;gap:9px}
+.icon-btn,.lang-btn,.nav-cta{
+  border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  border-radius:999px;padding:10px 14px;font-weight:700;font-size:12px;
+}
+.icon-btn{width:40px;height:40px;padding:0;font-size:17px}
+.lang-btn:hover,.icon-btn:hover{border-color:var(--green);color:var(--green)}
+.nav-cta{background:var(--green);color:var(--on-green);border-color:var(--green);padding-inline:18px}
+.nav-cta:hover,.primary-btn:hover{background:var(--green-deep);transform:translateY(-1px)}
+.hero{padding-block:76px 70px;position:relative}
+.hero-grid{display:grid;grid-template-columns:1.02fr .98fr;align-items:center;gap:48px}
+.hero-grid>*{min-width:0}
+.kicker{
+  display:inline-flex;align-items:center;gap:9px;color:var(--green);font-size:11px;
+  letter-spacing:.15em;text-transform:uppercase;font-weight:800
+}
+.kicker::before{content:"";width:22px;height:1px;background:var(--gold)}
+.hero h1{
+  font:500 clamp(44px,6vw,76px)/.99 var(--serif);letter-spacing:-.055em;
+  margin:21px 0 23px;max-width:660px;text-wrap:balance
+}
+.hero h1 em{font-style:italic;color:var(--green)}
+.hero-copy{max-width:525px;color:var(--muted);font-size:16px;line-height:1.8}
+.button-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.primary-btn,.secondary-btn{
+  border:1px solid transparent;border-radius:999px;padding:15px 21px;
+  font-size:13px;font-weight:800;transition:.2s ease
+}
+.primary-btn{background:var(--green);color:var(--on-green);box-shadow:0 9px 22px rgba(31,111,80,.18)}
+.secondary-btn{background:var(--surface);border-color:var(--line);color:var(--ink)}
+.secondary-btn:hover{border-color:var(--green);color:var(--green);transform:translateY(-1px)}
+.hero-note{margin-top:18px;color:var(--muted);font-size:11px}
+.hero-note span{color:var(--green);font-weight:800}
+.hero-art{
+  min-height:430px;border-radius:34px;position:relative;overflow:hidden;
+  background:linear-gradient(155deg,#dce9d8 0%,#bdd7c3 42%,#789e7e 100%);
+  box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.55)
+}
+.hero-art::before,.hero-art::after{
+  content:"";position:absolute;border:1px solid rgba(255,255,255,.36);border-radius:50%;
+  width:500px;height:500px;right:-135px;top:-240px
+}
+.hero-art::after{width:350px;height:350px;right:-70px;top:-165px}
+.art-sky{position:absolute;inset:0}
+.art-sky svg{width:100%;height:100%;display:block}
+.art-top{
+  position:absolute;left:24px;right:24px;top:22px;display:flex;
+  justify-content:space-between;align-items:center;gap:8px;z-index:2
+}
+.art-label,.art-count{
+  border:1px solid rgba(255,255,255,.5);background:rgba(255,253,248,.76);
+  backdrop-filter:blur(9px);border-radius:999px;padding:9px 13px;
+  color:#154b38;font-size:10px;font-weight:800;letter-spacing:.08em
+}
+.art-count{font-size:11px;letter-spacing:0;white-space:nowrap}
+.art-caption{
+  position:absolute;left:28px;right:28px;bottom:25px;z-index:2;
+  border:1px solid rgba(255,255,255,.6);background:rgba(255,253,248,.86);
+  backdrop-filter:blur(12px);border-radius:21px;padding:18px 20px;
+  display:flex;justify-content:space-between;align-items:end;gap:18px
+}
+.art-caption small{color:#5d6155;font-size:9px;letter-spacing:.14em;font-weight:800}
+.art-caption strong{display:block;margin-top:5px;font:500 24px var(--serif);color:#252920}
+.art-arrow{width:43px;height:43px;display:grid;place-items:center;border-radius:50%;background:var(--gold);color:#252920;font-size:20px;flex:0 0 43px}
+.float-stamp{
+  position:absolute;right:22px;top:100px;width:92px;height:92px;border-radius:50%;
+  display:grid;place-items:center;text-align:center;background:var(--gold);color:#493c1b;
+  font-size:10px;line-height:1.2;font-weight:900;letter-spacing:.04em;
+  transform:rotate(9deg);box-shadow:0 12px 25px rgba(72,72,29,.17);z-index:2
+}
+.stats-strip{
+  padding:21px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap
+}
+.stat{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}
+.stat b{color:var(--ink);font-size:15px}
+.stat-mark{width:9px;height:9px;border-radius:50%;background:var(--gold);flex:0 0 9px}
+.section{padding-block:82px}
+.section-heading{max-width:640px;margin-bottom:32px}
+.section-heading h2{font:500 clamp(34px,4vw,48px)/1.08 var(--serif);letter-spacing:-.04em;margin:13px 0;text-wrap:balance}
+.section-heading p{color:var(--muted);max-width:600px;margin:0;line-height:1.75}
+.approach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.approach-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:23px;
+  padding:24px;box-shadow:0 9px 25px rgba(40,48,35,.035);min-width:0
+}
+.approach-icon{font-size:23px;color:var(--green)}
+.approach-card h3{font:500 22px var(--serif);margin:14px 0 8px}
+.approach-card p{font-size:13px;color:var(--muted);line-height:1.7;margin:0}
+.planner-section{background:color-mix(in srgb,var(--green) 5%,var(--paper))}
+.wizard-wrap{max-width:890px;margin:auto}
+.wizard-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:28px;
+  padding:28px;box-shadow:var(--shadow)
+}
+.wizard-top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px}
+.engine-badge{
+  display:flex;gap:8px;align-items:center;color:var(--green);font-size:10px;
+  font-weight:800;letter-spacing:.08em;text-transform:uppercase
+}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#36a86d;box-shadow:0 0 0 4px rgba(54,168,109,.12);flex:0 0 8px}
+.progress-text{color:var(--muted);font-size:11px;font-weight:700;white-space:nowrap}
+.progress-track{height:5px;background:var(--line);border-radius:8px;margin-bottom:21px;overflow:hidden}
+.progress-fill{width:0;height:100%;background:linear-gradient(90deg,var(--green),var(--gold));transition:width .3s}
+.step-tabs{display:flex;gap:8px;margin-bottom:25px}
+.step-tab{
+  flex:1;min-width:0;border:1px solid var(--line);background:transparent;color:var(--muted);
+  padding:11px;border-radius:14px;text-align:left;font-size:11px;font-weight:750
+}
+.step-tab.active{background:color-mix(in srgb,var(--green) 9%,var(--surface));color:var(--green);border-color:color-mix(in srgb,var(--green) 28%,var(--line))}
+.step-tab span{color:var(--gold);margin-right:6px}
+.step-title{font:500 27px var(--serif);margin:0 0 5px}
+.step-help{color:var(--muted);font-size:12px;margin:0 0 20px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{min-width:0}
+.field label,.field-label{display:block;font-size:11px;font-weight:800;margin-bottom:8px}
+.field select{
+  width:100%;border:1px solid var(--line);border-radius:13px;background:var(--surface);
+  color:var(--ink);padding:13px 14px;outline:none
+}
+.field select:focus,.text-input:focus{border-color:var(--green);box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 18%,transparent)}
+.budget-field{grid-column:1/-1}
+.range-header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.range-header .field-label{margin-bottom:0}
+.range-value{color:var(--green);font-size:17px;font-weight:850}
+input[type=range]{width:100%;accent-color:var(--green);margin:12px 0 4px}
+.field-note{font-size:10px;color:var(--muted)}
+.tier-chips{display:flex;gap:7px;margin-top:8px;flex-wrap:wrap}
+.tier-chip{
+  background:transparent;border:1px solid var(--line);color:var(--muted);
+  padding:6px 11px;border-radius:999px;font-size:10px;font-weight:700
+}
+.tier-chip:hover{border-color:var(--green);color:var(--green)}
+.wizard-actions{display:flex;justify-content:space-between;gap:10px;margin-top:24px}
+.small-btn{
+  border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  padding:12px 17px;border-radius:999px;font-size:12px;font-weight:800
+}
+.small-btn.primary{background:var(--green);color:var(--on-green);border-color:var(--green)}
+.small-btn.primary:hover{background:var(--green-deep)}
+.small-btn:disabled{opacity:.6;cursor:progress}
+.interest-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.interest{
+  min-height:83px;min-width:0;text-align:left;border:1px solid var(--line);background:var(--surface);
+  color:var(--ink);border-radius:15px;padding:12px;transition:.15s ease
+}
+.interest span{display:block;font-size:21px;margin-bottom:7px}
+.interest b{font-size:10px;line-height:1.25}
+.interest.active{border-color:var(--green);background:color-mix(in srgb,var(--green) 8%,var(--surface));box-shadow:inset 0 0 0 1px var(--green)}
+.choice-row{display:flex;gap:9px;flex-wrap:wrap}
+.choice-btn{
+  border:1px solid var(--line);background:var(--surface);color:var(--muted);
+  border-radius:999px;padding:10px 15px;font-size:11px;font-weight:800
+}
+.choice-btn.active{color:var(--green);border-color:var(--green);background:color-mix(in srgb,var(--green) 8%,var(--surface))}
+.offbeat-wrap{margin-top:22px}
+.offbeat-labels{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;font-weight:700}
+.traveller-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.check-line{display:flex;gap:10px;align-items:flex-start;margin-top:17px;font-size:12px;color:var(--muted)}
+.loading-box{
+  margin-top:19px;padding:16px;border-radius:16px;background:color-mix(in srgb,var(--green) 7%,var(--surface));
+  border:1px solid color-mix(in srgb,var(--green) 20%,var(--line))
+}
+.loading-top{display:flex;justify-content:space-between;gap:12px;font-size:12px;font-weight:750;color:var(--green)}
+.loading-track{height:5px;border-radius:9px;background:var(--line);margin-top:11px;overflow:hidden}
+.loading-track i{display:block;height:100%;width:12%;background:var(--gold);transition:width .4s}
+.results-section{padding-top:75px}
+.results-header{display:flex;justify-content:space-between;align-items:flex-end;gap:22px;margin-bottom:25px;flex-wrap:wrap}
+.results-header>div{min-width:0}
+.results-header h2{font:500 clamp(32px,4vw,47px)/1.05 var(--serif);letter-spacing:-.04em;margin:10px 0;text-wrap:balance}
+.results-sub{color:var(--muted);font-size:12px}
+.result-actions{display:flex;gap:8px;flex-wrap:wrap}
+.result-actions button{
+  border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  border-radius:999px;padding:10px 13px;font-size:10px;font-weight:800
+}
+.result-actions button:hover{border-color:var(--green);color:var(--green)}
+.result-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:18px;align-items:start}
+.panel{
+  min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:23px;
+  padding:21px;box-shadow:0 8px 27px rgba(40,48,35,.035)
+}
+.panel-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:15px}
+.panel-heading h3{font:500 21px var(--serif);margin:0}
+.panel-heading small{font-size:9px;color:var(--muted);font-weight:750;letter-spacing:.08em;text-transform:uppercase}
+.day-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:15px}
+.day-filter-btn{
+  border:1px solid var(--line);background:transparent;color:var(--muted);
+  border-radius:999px;padding:7px 11px;font-size:10px;font-weight:750
+}
+.day-filter-btn.active{background:var(--green);border-color:var(--green);color:var(--on-green)}
+.day-group{border-top:1px solid var(--line);padding-top:15px;margin-top:15px}
+.day-group:first-of-type{border-top:0;padding-top:0;margin-top:0}
+.day-title-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.day-title-row strong{font:500 18px var(--serif)}
+.day-title-row span{font-size:10px;color:var(--muted);white-space:nowrap}
+.stop-card{
+  border:1px solid var(--line);border-radius:17px;padding:16px;margin-top:9px;
+  transition:.18s ease;cursor:pointer
+}
+.stop-card:hover,.stop-card.selected{border-color:var(--green);box-shadow:0 8px 20px rgba(31,111,80,.08)}
+.stop-meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.stop-card h4{font:500 21px var(--serif);margin:10px 0 6px}
+.stop-card h4 span{font:500 13px var(--sans);color:var(--green);margin-left:5px}
+.stop-story{font-size:12px;color:var(--muted);line-height:1.65;margin:0}
+.stop-detail{margin-top:11px;padding-top:10px;border-top:1px dashed var(--line);font-size:11px}
+.stop-detail b{color:var(--green)}
+.stop-foot{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+.mini-chip{background:color-mix(in srgb,var(--green) 7%,var(--surface));color:var(--green);border-radius:999px;padding:5px 8px;font-size:9px;font-weight:750}
+.flex-note{padding:10px 12px;border-radius:12px;background:rgba(249,178,8,.11);color:var(--muted);font-size:10px;margin-top:13px}
+.right-stack{display:grid;gap:15px;min-width:0}
+.map-panel{overflow:hidden}
+.map-board{
+  height:290px;position:relative;overflow:hidden;border-radius:16px;
+  background:
+    radial-gradient(ellipse at 16% 26%,rgba(249,178,8,.16),transparent 31%),
+    radial-gradient(ellipse at 75% 70%,rgba(31,111,80,.18),transparent 36%),
+    repeating-linear-gradient(25deg,transparent 0 31px,rgba(31,111,80,.045) 32px 33px),
+    color-mix(in srgb,var(--green) 5%,var(--paper))
+}
+.route-svg{position:absolute;inset:0;width:100%;height:100%}
+.route-svg .contour{fill:none;stroke:rgba(31,111,80,.13);stroke-width:1.5}
+.route-svg .route-shadow{fill:none;stroke:rgba(249,178,8,.48);stroke-width:13;stroke-linecap:round;stroke-linejoin:round}
+.route-svg .route-line{fill:none;stroke:var(--green);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7}
+.map-pin{
+  position:absolute;z-index:2;transform:translate(-50%,-50%);border:0;background:transparent;
+  padding:0;color:var(--ink);width:27px;height:27px
+}
+.pin-circle{
+  position:relative;display:grid;place-items:center;width:27px;height:27px;border-radius:50%;
+  border:3px solid #fff;background:var(--pin);color:#fff;font-size:9px;font-weight:900;
+  box-shadow:0 3px 12px rgba(31,45,31,.25);transition:transform .15s
+}
+.map-pin:hover .pin-circle,.map-pin.active .pin-circle{transform:scale(1.25)}
+.pin-tag{
+  position:absolute;left:15px;top:-22px;min-width:90px;max-width:140px;
+  padding:6px 8px;border-radius:8px;background:var(--surface);border:1px solid var(--line);
+  box-shadow:0 4px 12px rgba(30,40,30,.09);font-size:9px;font-weight:800;white-space:nowrap;
+  text-align:left;overflow:hidden;text-overflow:ellipsis;color:var(--ink)
+}
+.map-pin.below .pin-tag{top:20px}
+.map-pin.flip .pin-tag{left:auto;right:15px;text-align:right}
+.map-foot{display:flex;justify-content:space-between;gap:10px;margin-top:11px;color:var(--muted);font-size:9px;flex-wrap:wrap}
+.budget-total{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:4px 0 15px}
+.budget-total strong{font:500 29px var(--serif)}
+.budget-total span{font-size:10px;color:var(--muted)}
+.budget-status{font-size:10px;font-weight:800;color:var(--green);text-align:right}
+.budget-status.over{color:var(--red)}
+.budget-row{display:grid;grid-template-columns:75px 1fr 67px;gap:9px;align-items:center;margin:10px 0;font-size:10px}
+.budget-row label{color:var(--muted)}
+.budget-row b{text-align:right;font-size:10px;font-variant-numeric:tabular-nums}
+.budget-bar{height:7px;background:var(--line);border-radius:8px;overflow:hidden}
+.budget-bar i{height:100%;display:block;border-radius:8px;background:var(--bar,var(--green))}
+.budget-note{font-size:9px;color:var(--muted);line-height:1.6;margin:13px 0 0}
+.lower-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px;margin-top:17px}
+.impact-body{display:flex;align-items:center;gap:17px}
+.impact-ring{
+  width:84px;height:84px;flex:0 0 84px;border-radius:50%;
+  background:conic-gradient(var(--green) var(--progress),var(--line) 0);
+  display:grid;place-items:center;position:relative
+}
+.impact-ring::before{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--surface)}
+.impact-ring strong{position:relative;font:500 25px var(--serif)}
+.impact-copy p,.extra-panel p{font-size:11px;color:var(--muted);line-height:1.65;margin:6px 0 0}
+.impact-copy b{font-size:11px}
+.food-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.food-tag{background:rgba(249,178,8,.13);color:var(--tag-ink);padding:6px 8px;border-radius:999px;font-size:9px;font-weight:750}
+.phrase-list{display:grid;gap:9px}
+.phrase-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border-top:1px solid var(--line);padding-top:9px}
+.phrase-row:first-child{border-top:0;padding-top:0}
+.phrase-kn{font-size:16px;font-weight:800;color:var(--green)}
+.phrase-translit{font-size:9px;color:var(--muted)}
+.phrase-en{font-size:10px}
+.listen-btn{border:1px solid var(--line);background:transparent;border-radius:50%;width:32px;height:32px;color:var(--green)}
+.listen-btn:hover{background:var(--green);color:var(--on-green)}
+.refine-panel{margin-top:17px}
+.refine-form{display:flex;gap:8px;margin-top:12px}
+.text-input{
+  flex:1;min-width:0;padding:12px 14px;border-radius:999px;border:1px solid var(--line);
+  background:var(--surface);color:var(--ink);outline:none;font-size:11px
+}
+.refine-help{font-size:10px;color:var(--muted);margin:0}
+.toast{
+  position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translate(-50%,20px);z-index:50;
+  opacity:0;pointer-events:none;background:var(--ink);color:var(--paper);
+  padding:12px 17px;border-radius:999px;font-size:11px;font-weight:750;max-width:calc(100% - 32px);
+  box-shadow:var(--shadow);transition:.25s ease
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.footer{padding-block:34px;border-top:1px solid var(--line);color:var(--muted);font-size:10px}
+.footer-inner{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{
+  outline:3px solid color-mix(in srgb,var(--gold) 70%,white);outline-offset:3px
+}
+@media(max-width:900px){
+  .hero-grid{grid-template-columns:1fr;gap:28px}
+  .hero-art{min-height:350px}
+  .result-grid{grid-template-columns:1fr}
+  .lower-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:640px){
+  .nav-inner{height:66px}
+  .nav-links{display:none}
+  .nav-cta{display:none}
+  .hero{padding-block:48px 46px}
+  .hero-art{min-height:315px}
+  .hero h1{font-size:46px}
+  .art-label{display:none}
+  .art-top{justify-content:flex-end}
+  .float-stamp{width:78px;height:78px;top:70px;font-size:9px}
+  .section{padding-block:60px}
+  .approach-grid{grid-template-columns:1fr}
+  .wizard-card{padding:19px 15px;border-radius:21px}
+  .wizard-top{flex-wrap:wrap}
+  .step-tab{padding:9px 7px;font-size:9px}
+  .form-grid,.traveller-grid{grid-template-columns:1fr}
+  .budget-field{grid-column:auto}
+  .interest-grid{grid-template-columns:repeat(2,1fr)}
+  .results-header{display:block}
+  .result-actions{margin-top:14px}
+  .lower-grid{grid-template-columns:1fr}
+  .map-board{height:260px}
+  .pin-tag{min-width:75px;max-width:110px;font-size:8px}
+  .refine-form{flex-wrap:wrap}
+  .refine-form .small-btn{width:100%}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+
+<nav class="topbar">
+  <div class="container nav-inner">
+    <a class="brand" href="#top" aria-label="Namma Yatra home">
+      <span class="brand-mark">ನ</span>
+      <span>Namma Yatra<small>ನಮ್ಮ ಯಾತ್ರೆ · KARNATAKA</small></span>
+    </a>
+    <div class="nav-links">
+      <a href="#approach" data-i18n="nav.approach">Our approach</a>
+      <a href="#planner" data-i18n="nav.planner">Plan a trip</a>
+    </div>
+    <div class="nav-actions">
+      <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode">◐</button>
+      <button class="lang-btn" id="languageBtn" aria-label="Switch language">ಕನ್ನಡ</button>
+      <a class="nav-cta" href="#planner" data-i18n="nav.cta">Plan your trip ↗</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+<section class="hero container" id="top">
+  <div class="hero-grid">
+    <div>
+      <div class="kicker" data-i18n="hero.kicker">A slower, deeper way to see Karnataka</div>
+      <h1><span data-i18n="hero.line1">Your Karnataka,</span><br><em data-i18n="hero.line2">planned with heart.</em></h1>
+      <p class="hero-copy" data-i18n="hero.copy">
+        From Hoysala stone to Western Ghats mornings, find a trip shaped around your time,
+        budget and curiosity—with local culture along the way.
+      </p>
+      <div class="button-row">
+        <a class="primary-btn" href="#planner"><span data-i18n="hero.plan">Plan my Karnataka trip</span> →</a>
+        <button class="secondary-btn" id="sampleBtn"><span data-i18n="hero.sample">Try a sample trip</span> ↗</button>
+      </div>
+      <p class="hero-note"><span>✦</span> <span data-i18n="hero.note">No login · No API key · A grounded demo that runs in your browser</span></p>
+    </div>
+
+    <div class="hero-art" aria-label="Illustrated Karnataka hills and travel route">
+      <div class="art-sky">
+        <svg viewBox="0 0 720 520" preserveAspectRatio="xMidYMid slice" role="img" aria-hidden="true">
+          <defs>
+            <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#dce9d8"/>
+              <stop offset="1" stop-color="#a9cbb0"/>
+            </linearGradient>
+            <linearGradient id="hill1" x1="0" x2="1">
+              <stop stop-color="#4c8664"/><stop offset="1" stop-color="#28654b"/>
+            </linearGradient>
+            <linearGradient id="hill2" x1="0" x2="1">
+              <stop stop-color="#91b58a"/><stop offset="1" stop-color="#639171"/>
+            </linearGradient>
+          </defs>
+          <rect width="720" height="520" fill="url(#sky)"/>
+          <circle cx="540" cy="142" r="58" fill="#f9b208" opacity=".78"/>
+          <path d="M0 293 Q90 230 184 270 T380 237 T720 255 V520 H0Z" fill="url(#hill2)"/>
+          <path d="M0 342 Q105 274 202 325 Q305 244 418 325 Q528 259 720 326 V520 H0Z" fill="url(#hill1)"/>
+          <path d="M0 405 Q138 350 257 404 Q390 337 502 398 Q630 345 720 387 V520 H0Z" fill="#1f6f50"/>
+          <path d="M94 520 Q250 445 332 468 Q435 493 565 417 Q612 389 664 400" fill="none" stroke="#f6d982" stroke-width="5" stroke-linecap="round" opacity=".9"/>
+          <path d="M94 520 Q250 445 332 468 Q435 493 565 417 Q612 389 664 400" fill="none" stroke="#fff8e7" stroke-width="1.5" stroke-dasharray="7 10" opacity=".8"/>
+          <g fill="#f8f3e7" opacity=".75">
+            <circle cx="125" cy="165" r="3"/><circle cx="203" cy="114" r="2"/>
+            <circle cx="360" cy="167" r="3"/><circle cx="637" cy="220" r="2"/>
+          </g>
+        </svg>
+      </div>
+      <div class="art-top">
+        <span class="art-label">✦ KARNATAKA, THOUGHTFULLY PLANNED</span>
+        <span class="art-count">01 — 31 districts</span>
+      </div>
+      <div class="float-stamp">LOCAL<br>STORIES<br>MATTER</div>
+      <div class="art-caption">
+        <div>
+          <small>THE NEXT CHAPTER COULD BE</small>
+          <strong id="rotatingDestination">Mysuru Palace</strong>
+        </div>
+        <span class="art-arrow">↗</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-strip" style="margin-top:43px">
+    <div class="stat"><span class="stat-mark"></span><span><b>Grounded</b> in Karnataka places</span></div>
+    <div class="stat"><span class="stat-mark" style="background:var(--red)"></span><span><b>Kannada</b> in the journey</span></div>
+    <div class="stat"><span class="stat-mark" style="background:var(--teal)"></span><span><b>Local-first</b> route suggestions</span></div>
+    <div class="stat"><span class="stat-mark" style="background:var(--green)"></span><span><b>Guest-first</b>—no sign-up</span></div>
+  </div>
+</section>
+
+<section class="section container" id="approach">
+  <div class="section-heading">
+    <div class="kicker" data-i18n="approach.kicker">More than a list of places</div>
+    <h2 data-i18n="approach.title">A trip that feels like it belongs here.</h2>
+    <p data-i18n="approach.copy">Namma Yatra puts regional context, useful Kannada and practical planning in the same place.</p>
+  </div>
+  <div class="approach-grid">
+    <article class="approach-card">
+      <div class="approach-icon">⌖</div>
+      <h3 data-i18n="approach.oneTitle">Grounded in place</h3>
+      <p data-i18n="approach.oneCopy">A small curated destination set drives the demo route. It won’t invent a restaurant or pretend a price is live.</p>
+    </article>
+    <article class="approach-card">
+      <div class="approach-icon">ಕ</div>
+      <h3 data-i18n="approach.twoTitle">Kannada along the way</h3>
+      <p data-i18n="approach.twoCopy">Useful phrases, Kannada place names and optional speech make language part of the trip—not an afterthought.</p>
+    </article>
+    <article class="approach-card">
+      <div class="approach-icon">↗</div>
+      <h3 data-i18n="approach.threeTitle">Local impact, visible</h3>
+      <p data-i18n="approach.threeCopy">An illustrative score rewards offbeat choices and district spread. It is a planning signal, not a tourism revenue metric.</p>
+    </article>
+  </div>
+</section>
+
+<section class="section planner-section" id="planner">
+  <div class="container wizard-wrap">
+    <div class="section-heading">
+      <div class="kicker" data-i18n="planner.kicker">Your trip, your way</div>
+      <h2 data-i18n="planner.title">Let’s plan your yātra.</h2>
+      <p data-i18n="planner.copy">Tell us what you enjoy. The demo planner will create a Karnataka route and show how its estimates are put together.</p>
+    </div>
+
+    <div class="wizard-card">
+      <div class="wizard-top">
+        <div class="engine-badge"><span class="live-dot"></span><span data-i18n="planner.engine">Grounded demo engine · no API key required</span></div>
+        <div class="progress-text"><span data-i18n="planner.step">Step</span> <b id="stepCount">1</b> / 3</div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+      <div class="step-tabs">
+        <button class="step-tab active" data-step-tab="1"><span>01</span><b data-i18n="step.route">Route &amp; rhythm</b></button>
+        <button class="step-tab" data-step-tab="2"><span>02</span><b data-i18n="step.interests">Your interests</b></button>
+        <button class="step-tab" data-step-tab="3"><span>03</span><b data-i18n="step.travel">Travel style</b></button>
+      </div>
+
+      <form id="wizardForm">
+        <div class="wizard-step" data-step="1">
+          <h3 class="step-title" data-i18n="step1.title">Where are we starting?</h3>
+          <p class="step-help" data-i18n="step1.copy">A few practical details help keep the plan realistic.</p>
+          <div class="form-grid">
+            <div class="field">
+              <label for="startCity" data-i18n="field.city">Starting city</label>
+              <select id="startCity">
+                <option value="Bengaluru" data-en="Bengaluru" data-kn="ಬೆಂಗಳೂರು">Bengaluru</option>
+                <option value="Mysuru" data-en="Mysuru" data-kn="ಮೈಸೂರು">Mysuru</option>
+                <option value="Mangaluru" data-en="Mangaluru" data-kn="ಮಂಗಳೂರು">Mangaluru</option>
+                <option value="Hubballi-Dharwad" data-en="Hubballi-Dharwad" data-kn="ಹುಬ್ಬಳ್ಳಿ-ಧಾರವಾಡ">Hubballi-Dharwad</option>
+                <option value="Belagavi" data-en="Belagavi" data-kn="ಬೆಳಗಾವಿ">Belagavi</option>
+                <option value="Kalaburagi" data-en="Kalaburagi" data-kn="ಕಲಬುರಗಿ">Kalaburagi</option>
+                <option value="Other" data-en="Other (demo uses Bengaluru area)" data-kn="ಇತರೆ (ಡೆಮೊ: ಬೆಂಗಳೂರು)">Other (demo uses Bengaluru area)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="travelMonth" data-i18n="field.month">Travel month</label>
+              <select id="travelMonth">
+                <option value="January" data-en="January" data-kn="ಜನವರಿ">January</option>
+                <option value="February" data-en="February" data-kn="ಫೆಬ್ರವರಿ">February</option>
+                <option value="March" data-en="March" data-kn="ಮಾರ್ಚ್">March</option>
+                <option value="April" data-en="April" data-kn="ಏಪ್ರಿಲ್">April</option>
+                <option value="May" data-en="May" data-kn="ಮೇ">May</option>
+                <option value="June" data-en="June" data-kn="ಜೂನ್">June</option>
+                <option value="July" data-en="July" data-kn="ಜುಲೈ">July</option>
+                <option value="August" data-en="August" data-kn="ಆಗಸ್ಟ್">August</option>
+                <option value="September" data-en="September" data-kn="ಸೆಪ್ಟೆಂಬರ್">September</option>
+                <option value="October" selected data-en="October" data-kn="ಅಕ್ಟೋಬರ್">October</option>
+                <option value="November" data-en="November" data-kn="ನವೆಂಬರ್">November</option>
+                <option value="December" data-en="December" data-kn="ಡಿಸೆಂಬರ್">December</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="duration" data-i18n="field.duration">Trip length</label>
+              <select id="duration">
+                <option value="1">1 day</option><option value="2">2 days</option>
+                <option value="3" selected>3 days</option><option value="4">4 days</option>
+                <option value="5">5 days</option><option value="7">7 days</option>
+                <option value="10">10 days</option><option value="14">14 days</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="groupSize" data-i18n="field.group">Group size</label>
+              <select id="groupSize">
+                <option value="1">1 traveller</option><option value="2" selected>2 travellers</option>
+                <option value="3">3 travellers</option><option value="4">4 travellers</option>
+                <option value="5">5 travellers</option><option value="6">6 travellers</option>
+              </select>
+            </div>
+            <div class="field budget-field">
+              <div class="range-header">
+                <label for="budget" data-i18n="field.budget">Total trip budget</label>
+                <output class="range-value" id="budgetValue" for="budget">₹30,000</output>
+              </div>
+              <input id="budget" type="range" min="3000" max="200000" step="1000" value="30000" aria-label="Total trip budget in rupees">
+              <div class="field-note" data-i18n="field.budgetHint">For your whole group · estimate only</div>
+              <div class="tier-chips">
+                <button type="button" class="tier-chip" data-budget="18000" data-i18n="tier.budget">Budget</button>
+                <button type="button" class="tier-chip" data-budget="45000" data-i18n="tier.comfort">Comfort</button>
+                <button type="button" class="tier-chip" data-budget="100000" data-i18n="tier.luxury">Luxury</button>
+              </div>
+            </div>
+          </div>
+          <div class="wizard-actions">
+            <span></span>
+            <button type="button" class="small-btn primary" data-next data-i18n="button.next">Next step →</button>
+          </div>
+        </div>
+
+        <div class="wizard-step" data-step="2" hidden>
+          <h3 class="step-title" data-i18n="step2.title">What makes a trip yours?</h3>
+          <p class="step-help" data-i18n="step2.copy">Choose as many as you like. The demo uses these to rank its curated places.</p>
+          <div class="interest-grid">
+            <button type="button" class="interest active" data-interest="heritage" aria-pressed="true"><span>🏛️</span><b data-i18n="interest.heritage">Heritage &amp; temples</b></button>
+            <button type="button" class="interest active" data-interest="nature" aria-pressed="true"><span>🌿</span><b data-i18n="interest.nature">Nature &amp; waterfalls</b></button>
+            <button type="button" class="interest" data-interest="wildlife" aria-pressed="false"><span>🦜</span><b data-i18n="interest.wildlife">Wildlife</b></button>
+            <button type="button" class="interest" data-interest="beach" aria-pressed="false"><span>🌊</span><b data-i18n="interest.beach">Beaches</b></button>
+            <button type="button" class="interest" data-interest="coffee" aria-pressed="false"><span>☕</span><b data-i18n="interest.coffee">Coffee country</b></button>
+            <button type="button" class="interest" data-interest="adventure" aria-pressed="false"><span>🥾</span><b data-i18n="interest.adventure">Adventure</b></button>
+            <button type="button" class="interest" data-interest="food" aria-pressed="false"><span>🍲</span><b data-i18n="interest.food">Food &amp; culinary</b></button>
+            <button type="button" class="interest" data-interest="photography" aria-pressed="false"><span>📷</span><b data-i18n="interest.photo">Photography</b></button>
+            <button type="button" class="interest" data-interest="spiritual" aria-pressed="false"><span>🙏</span><b data-i18n="interest.spiritual">Spiritual &amp; wellness</b></button>
+            <button type="button" class="interest" data-interest="art" aria-pressed="false"><span>🎨</span><b data-i18n="interest.art">Art &amp; craft</b></button>
+          </div>
+
+          <div style="margin-top:20px">
+            <div class="field-label" data-i18n="field.pace">Your pace</div>
+            <div class="choice-row">
+              <button type="button" class="choice-btn" data-pace="relaxed" data-i18n="pace.relaxed">Relaxed</button>
+              <button type="button" class="choice-btn active" data-pace="balanced" data-i18n="pace.balanced">Balanced</button>
+              <button type="button" class="choice-btn" data-pace="packed" data-i18n="pace.packed">Packed</button>
+            </div>
+          </div>
+
+          <div class="offbeat-wrap">
+            <div class="range-header">
+              <label class="field-label" for="offbeat" data-i18n="field.offbeat">Popular favourites ↔ hidden gems</label>
+              <b id="offbeatValue" style="color:var(--green);font-size:12px">55% hidden</b>
+            </div>
+            <input id="offbeat" type="range" min="0" max="100" value="55" aria-label="Preference for hidden gems">
+            <div class="offbeat-labels"><span data-i18n="field.popular">Iconic favourites</span><span data-i18n="field.hidden">Local discoveries</span></div>
+          </div>
+
+          <div class="wizard-actions">
+            <button type="button" class="small-btn" data-back data-i18n="button.back">← Back</button>
+            <button type="button" class="small-btn primary" data-next data-i18n="button.next">Next step →</button>
+          </div>
+        </div>
+
+        <div class="wizard-step" data-step="3" hidden>
+          <h3 class="step-title" data-i18n="step3.title">One last bit of context.</h3>
+          <p class="step-help" data-i18n="step3.copy">We’ll use this to shape the rhythm and rough costs.</p>
+          <div class="traveller-grid">
+            <div class="field">
+              <label for="travellerType" data-i18n="field.traveller">Who’s travelling?</label>
+              <select id="travellerType">
+                <option value="solo" data-en="Solo" data-kn="ಒಬ್ಬರೇ">Solo</option>
+                <option value="couple" selected data-en="Couple" data-kn="ಜೋಡಿ">Couple</option>
+                <option value="family" data-en="Family with kids" data-kn="ಮಕ್ಕಳಿರುವ ಕುಟುಂಬ">Family with kids</option>
+                <option value="friends" data-en="Friends" data-kn="ಸ್ನೇಹಿತರು">Friends</option>
+                <option value="seniors" data-en="Senior citizens" data-kn="ಹಿರಿಯ ನಾಗರಿಕರು">Senior citizens</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="transport" data-i18n="field.transport">Getting around</label>
+              <select id="transport">
+                <option value="own-car" data-en="Own car" data-kn="ಸ್ವಂತ ಕಾರು">Own car</option>
+                <option value="cab" data-en="Cab" data-kn="ಕ್ಯಾಬ್">Cab</option>
+                <option value="bus-train" data-en="Bus / train" data-kn="ಬಸ್ / ರೈಲು">Bus / train</option>
+                <option value="mix" selected data-en="A mix" data-kn="ಮಿಶ್ರ ಸಾರಿಗೆ">A mix</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="diet" data-i18n="field.diet">Food preference</label>
+              <select id="diet">
+                <option value="vegetarian" data-en="Vegetarian" data-kn="ಸಸ್ಯಾಹಾರಿ">Vegetarian</option>
+                <option value="non-vegetarian" data-en="Non-vegetarian" data-kn="ಮಾಂಸಾಹಾರಿ">Non-vegetarian</option>
+                <option value="jain" data-en="Jain" data-kn="ಜೈನ">Jain</option>
+                <option value="any" selected data-en="No preference" data-kn="ಆದ್ಯತೆ ಇಲ್ಲ">No preference</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="accessibility" data-i18n="field.accessibility">Accessibility</label>
+              <select id="accessibility">
+                <option value="standard" data-en="No specific request" data-kn="ವಿಶೇಷ ಅಗತ್ಯವಿಲ್ಲ">No specific request</option>
+                <option value="step-free" data-en="Prioritize step-free access" data-kn="ಮೆಟ್ಟಿಲಿಲ್ಲದ ಪ್ರವೇಶಕ್ಕೆ ಆದ್ಯತೆ">Prioritize step-free access</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="check-line">
+            <span>✦</span>
+            <span data-i18n="planner.disclaimer">Demo estimates are approximate. Check current entry fees, opening hours, weather and access before travel.</span>
+          </div>
+
+          <div class="wizard-actions">
+            <button type="button" class="small-btn" data-back data-i18n="button.back">← Back</button>
+            <button type="submit" class="small-btn primary" id="generateBtn" data-i18n="button.generate">Build my itinerary ✦</button>
+          </div>
+        </div>
+      </form>
+
+      <div class="loading-box" id="loadingBox" hidden aria-live="polite">
+        <div class="loading-top"><span id="loadingMessage">Reading your travel rhythm…</span><span id="loadingPercent">12%</span></div>
+        <div class="loading-track"><i id="loadingBar"></i></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section results-section container" id="results" hidden>
+  <div class="results-header">
+    <div>
+      <div class="kicker" data-i18n="results.kicker">A route made for you</div>
+      <h2 id="resultsTitle">Your Karnataka itinerary</h2>
+      <div class="results-sub" id="resultsSummary"></div>
+    </div>
+    <div class="result-actions">
+      <button id="saveBtn" data-i18n="results.save">♡ Save</button>
+      <button id="shareBtn" data-i18n="results.share">⧉ Copy summary</button>
+    </div>
+  </div>
+
+  <div class="result-grid">
+    <article class="panel">
+      <div class="panel-heading">
+        <h3 data-i18n="results.itinerary">Day by day</h3>
+        <small data-i18n="results.estimate">CURATED DEMO PLAN</small>
+      </div>
+      <div class="day-filter" id="dayFilter"></div>
+      <div id="itineraryDays"></div>
+    </article>
+
+    <div class="right-stack">
+      <article class="panel map-panel">
+        <div class="panel-heading">
+          <h3 data-i18n="results.route">Your route at a glance</h3>
+          <small data-i18n="results.schematic">SCHEMATIC · NOT TO SCALE</small>
+        </div>
+        <div class="map-board" id="mapBoard"></div>
+        <div class="map-foot"><span id="routeDistance">~ — km travel estimate</span><span data-i18n="results.mapNote">Illustrative route sketch</span></div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-heading"><h3 data-i18n="results.budget">Budget, made clear</h3><small data-i18n="results.groupTotal">WHOLE GROUP</small></div>
+        <div id="budgetBreakdown"></div>
+      </article>
+    </div>
+  </div>
+
+  <div class="lower-grid">
+    <article class="panel">
+      <div class="panel-heading"><h3 data-i18n="results.impact">Local impact</h3><small data-i18n="results.demoScore">DEMO SCORE</small></div>
+      <div id="impactCard"></div>
+    </article>
+    <article class="panel extra-panel">
+      <div class="panel-heading"><h3 data-i18n="results.food">Local food trail</h3><small data-i18n="results.noAds">NO SPONSORED PICKS</small></div>
+      <div id="foodCard"></div>
+    </article>
+    <article class="panel extra-panel">
+      <div class="panel-heading"><h3 data-i18n="results.season">Season &amp; packing</h3><small data-i18n="results.notForecast">SEASONAL GUIDANCE</small></div>
+      <div id="seasonCard"></div>
+    </article>
+  </div>
+
+  <div class="lower-grid" style="grid-template-columns:1fr">
+    <article class="panel">
+      <div class="panel-heading">
+        <h3 data-i18n="results.kannada">Kannada Corner</h3>
+        <small id="phraseDestination">PRACTICAL PHRASES</small>
+      </div>
+      <div class="phrase-list" id="phraseList"></div>
+      <p class="budget-note" data-i18n="results.audioNote">Audio uses your browser’s Kannada speech voice if one is available.</p>
+    </article>
+  </div>
+
+  <article class="panel refine-panel">
+    <div class="panel-heading">
+      <h3 data-i18n="results.refine">Make it yours</h3>
+      <button class="small-btn" id="undoBtn" hidden data-i18n="results.undo">↶ Undo</button>
+    </div>
+    <p class="refine-help" data-i18n="results.refineHelp">Try “make it more relaxed”, “more hidden gems”, “add coffee”, or “make it a beach trip”. This demo uses simple rules, not a live chat model.</p>
+    <form class="refine-form" id="refineForm">
+      <input class="text-input" id="refineInput" placeholder="Tell us what to change…" aria-label="Describe a trip change">
+      <button class="small-btn primary" type="submit" data-i18n="results.refineButton">Refine plan →</button>
+    </form>
+  </article>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <span><b>Namma Yatra</b> · ಕರ್ನಾಟಕದ ಕತೆಗಳನ್ನು ಕಂಡುಕೊಳ್ಳಿ</span>
+    <span data-i18n="footer.note">Prototype demo · Verify travel details before departure</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const I18N = {
+  en: {
+    "nav.approach":"Our approach","nav.planner":"Plan a trip","nav.cta":"Plan your trip ↗",
+    "hero.kicker":"A slower, deeper way to see Karnataka","hero.line1":"Your Karnataka,","hero.line2":"planned with heart.",
+    "hero.copy":"From Hoysala stone to Western Ghats mornings, find a trip shaped around your time, budget and curiosity—with local culture along the way.",
+    "hero.plan":"Plan my Karnataka trip","hero.sample":"Try a sample trip",
+    "hero.note":"No login · No API key · A grounded demo that runs in your browser",
+    "approach.kicker":"More than a list of places","approach.title":"A trip that feels like it belongs here.",
+    "approach.copy":"Namma Yatra puts regional context, useful Kannada and practical planning in the same place.",
+    "approach.oneTitle":"Grounded in place","approach.oneCopy":"A small curated destination set drives the demo route. It won’t invent a restaurant or pretend a price is live.",
+    "approach.twoTitle":"Kannada along the way","approach.twoCopy":"Useful phrases, Kannada place names and optional speech make language part of the trip—not an afterthought.",
+    "approach.threeTitle":"Local impact, visible","approach.threeCopy":"An illustrative score rewards offbeat choices and district spread. It is a planning signal, not a tourism revenue metric.",
+    "planner.kicker":"Your trip, your way","planner.title":"Let’s plan your yātra.",
+    "planner.copy":"Tell us what you enjoy. The demo planner will create a Karnataka route and show how its estimates are put together.",
+    "planner.engine":"Grounded demo engine · no API key required","planner.step":"Step",
+    "step.route":"Route & rhythm","step.interests":"Your interests","step.travel":"Travel style",
+    "step1.title":"Where are we starting?","step1.copy":"A few practical details help keep the plan realistic.",
+    "step2.title":"What makes a trip yours?","step2.copy":"Choose as many as you like. The demo uses these to rank its curated places.",
+    "step3.title":"One last bit of context.","step3.copy":"We’ll use this to shape the rhythm and rough costs.",
+    "field.city":"Starting city","field.month":"Travel month","field.duration":"Trip length","field.group":"Group size",
+    "field.budget":"Total trip budget","field.budgetHint":"For your whole group · estimate only",
+    "tier.budget":"Budget","tier.comfort":"Comfort","tier.luxury":"Luxury",
+    "field.pace":"Your pace","pace.relaxed":"Relaxed","pace.balanced":"Balanced","pace.packed":"Packed",
+    "field.offbeat":"Popular favourites ↔ hidden gems","field.popular":"Iconic favourites","field.hidden":"Local discoveries",
+    "field.traveller":"Who’s travelling?","field.transport":"Getting around","field.diet":"Food preference",
+    "field.accessibility":"Accessibility","button.next":"Next step →","button.back":"← Back",
+    "button.generate":"Build my itinerary ✦",
+    "interest.heritage":"Heritage & temples","interest.nature":"Nature & waterfalls","interest.wildlife":"Wildlife",
+    "interest.beach":"Beaches","interest.coffee":"Coffee country","interest.adventure":"Adventure",
+    "interest.food":"Food & culinary","interest.photo":"Photography","interest.spiritual":"Spiritual & wellness",
+    "interest.art":"Art & craft",
+    "planner.disclaimer":"Demo estimates are approximate. Check current entry fees, opening hours, weather and access before travel.",
+    "results.kicker":"A route made for you","results.itinerary":"Day by day","results.estimate":"CURATED DEMO PLAN",
+    "results.route":"Your route at a glance","results.schematic":"SCHEMATIC · NOT TO SCALE",
+    "results.mapNote":"Illustrative route sketch","results.budget":"Budget, made clear","results.groupTotal":"WHOLE GROUP",
+    "results.impact":"Local impact","results.demoScore":"DEMO SCORE","results.food":"Local food trail",
+    "results.noAds":"NO SPONSORED PICKS","results.season":"Season & packing","results.notForecast":"SEASONAL GUIDANCE",
+    "results.kannada":"Kannada Corner","results.audioNote":"Audio uses your browser’s Kannada speech voice if one is available.",
+    "results.refine":"Make it yours","results.undo":"↶ Undo",
+    "results.refineHelp":"Try “make it more relaxed”, “more hidden gems”, “add coffee”, or “make it a beach trip”. This demo uses simple rules, not a live chat model.",
+    "results.refineButton":"Refine plan →","results.save":"♡ Save","results.share":"⧉ Copy summary",
+    "footer.note":"Prototype demo · Verify travel details before departure",
+    "day":"Day","allDays":"All days","why":"Why it fits","tip":"Local tip","travel":"Est. travel",
+    "entry":"Entry estimate","foodKnown":"Known for","packing":"Packing thought","festival":"Festival note",
+    "budgetWithin":"Within your stated budget","budgetOver":"Above your stated budget",
+    "stay":"Stay","meals":"Food","transportCost":"Transport","entryFees":"Entry fees","buffer":"Buffer",
+    "budgetSuggestion":"Consider public transport or a lower-cost stay to bring this estimate down.",
+    "impactText":"Illustrative score from offbeat stops, chosen preferences and district spread—not measured local income.",
+    "impactDistricts":"districts","impactOffbeat":"offbeat places",
+    "audioToast":"Trying Kannada speech. Voice availability depends on your browser.",
+    "savedToast":"Trip saved on this device.","summaryCopied":"Trip summary copied.",
+    "copyFail":"Could not copy the summary on this device.",
+    "refinedToast":"Plan updated with the deterministic demo planner.","unknownRefine":"Try “relaxed”, “hidden gems”, “coffee”, “beach”, or “heritage”.",
+    "undoToast":"Previous plan restored.",
+    "festDasara":"Mysuru Dasara is typically held around September–October; exact dates vary. Check the official schedule.",
+    "festHampi":"Hampi Utsav dates can vary. Check the official schedule before planning around it.",
+    "seasonMonsoon":"Monsoon months can bring heavy rain in parts of Karnataka. Keep plans flexible and check local conditions.",
+    "seasonWarm":"Seasonal guide only—not a live forecast. Carry water and check conditions for outdoor stops.",
+    "seasonMild":"A generally comfortable travel window for many routes; hill and coastal conditions still vary.",
+    "flexDays":"Extra requested days are left flexible because this demo has a small curated destination set.",
+    "sampleLoading":"Consulting the curated Karnataka guide…"
+  },
+  kn: {
+    "nav.approach":"ನಮ್ಮ ವಿಧಾನ","nav.planner":"ಪ್ರವಾಸ ಯೋಜಿಸಿ","nav.cta":"ಪ್ರವಾಸ ಯೋಜಿಸಿ ↗",
+    "hero.kicker":"ಕರ್ನಾಟಕವನ್ನು ನಿಧಾನವಾಗಿ, ಆಳವಾಗಿ ಅನುಭವಿಸಿ","hero.line1":"ನಿಮ್ಮ ಕರ್ನಾಟಕ,","hero.line2":"ಮನಸಿನಿಂದ ರೂಪಿಸಿದ ಯಾತ್ರೆ.",
+    "hero.copy":"ಹೊಯ್ಸಳ ಶಿಲ್ಪದಿಂದ ಪಶ್ಚಿಮ ಘಟ್ಟಗಳ ಬೆಳಗಿನವರೆಗೆ—ನಿಮ್ಮ ಸಮಯ, ಬಜೆಟ್ ಮತ್ತು ಆಸಕ್ತಿಗೆ ಹೊಂದುವ ಪ್ರವಾಸವನ್ನು ಸ್ಥಳೀಯ ಸಂಸ್ಕೃತಿಯೊಂದಿಗೆ ಕಂಡುಕೊಳ್ಳಿ.",
+    "hero.plan":"ನನ್ನ ಕರ್ನಾಟಕ ಪ್ರವಾಸ ಯೋಜಿಸಿ","hero.sample":"ಮಾದರಿ ಪ್ರವಾಸ ನೋಡಿ",
+    "hero.note":"ಲಾಗಿನ್ ಬೇಡ · API ಕೀ ಬೇಡ · ನಿಮ್ಮ ಬ್ರೌಸರ್‌ನಲ್ಲೇ ಕೆಲಸ ಮಾಡುವ ಡೆಮೊ",
+    "approach.kicker":"ಸ್ಥಳಗಳ ಪಟ್ಟಿಗಿಂತ ಹೆಚ್ಚು","approach.title":"ಈ ನೆಲಕ್ಕೆ ಸೇರಿದ ಅನುಭವದ ಪ್ರವಾಸ.",
+    "approach.copy":"ಸ್ಥಳೀಯ ಮಾಹಿತಿ, ಉಪಯುಕ್ತ ಕನ್ನಡ ಮತ್ತು ಪ್ರಾಯೋಗಿಕ ಯೋಜನೆಯನ್ನು Namma Yatra ಒಂದೇ ಕಡೆ ತರುತ್ತದೆ.",
+    "approach.oneTitle":"ಸ್ಥಳಾಧಾರಿತ ಮಾಹಿತಿ","approach.oneCopy":"ಆಯ್ದ ಸ್ಥಳಗಳ ಸಣ್ಣ ಪಟ್ಟಿಯಿಂದ ಡೆಮೊ ಮಾರ್ಗ ರೂಪುಗೊಳ್ಳುತ್ತದೆ. ಕಲ್ಪಿತ ರೆಸ್ಟೋರೆಂಟ್ ಅಥವಾ ನೇರ ಬೆಲೆಯ ಭರವಸೆ ಇಲ್ಲ.",
+    "approach.twoTitle":"ಪ್ರಯಾಣದಲ್ಲೂ ಕನ್ನಡ","approach.twoCopy":"ಉಪಯುಕ್ತ ನುಡಿಗಳು, ಕನ್ನಡ ಸ್ಥಳನಾಮಗಳು ಮತ್ತು ಧ್ವನಿ—ಭಾಷೆಯನ್ನು ಪ್ರವಾಸದ ಭಾಗವಾಗಿಸುತ್ತವೆ.",
+    "approach.threeTitle":"ಸ್ಥಳೀಯ ಪ್ರಭಾವ ಗೋಚರ","approach.threeCopy":"ಆಫ್‌ಬೀಟ್ ಆಯ್ಕೆಗಳು ಮತ್ತು ಜಿಲ್ಲೆಗಳ ವೈವಿಧ್ಯವನ್ನು ತೋರಿಸುವ ಸೂಚಕ. ಇದು ಪ್ರವಾಸೋದ್ಯಮ ಆದಾಯದ ಅಳತೆ ಅಲ್ಲ.",
+    "planner.kicker":"ನಿಮ್ಮ ಪ್ರವಾಸ, ನಿಮ್ಮ ಆಯ್ಕೆ","planner.title":"ನಿಮ್ಮ ಯಾತ್ರೆ ಯೋಜಿಸೋಣ.",
+    "planner.copy":"ನಿಮ್ಮ ಆಸಕ್ತಿಗಳನ್ನು ತಿಳಿಸಿ. ಡೆಮೊ ಯೋಜಕ ಕರ್ನಾಟಕದ ಮಾರ್ಗ ಮತ್ತು ಅಂದಾಜು ವೆಚ್ಚವನ್ನು ತೋರಿಸುತ್ತದೆ.",
+    "planner.engine":"ಆಯ್ದ ಸ್ಥಳಗಳ ಡೆಮೊ · API ಕೀ ಅಗತ್ಯವಿಲ್ಲ","planner.step":"ಹಂತ",
+    "step.route":"ಮಾರ್ಗ ಮತ್ತು ಸಮಯ","step.interests":"ನಿಮ್ಮ ಆಸಕ್ತಿಗಳು","step.travel":"ಪ್ರಯಾಣ ಶೈಲಿ",
+    "step1.title":"ಎಲ್ಲಿಂದ ಪ್ರಾರಂಭಿಸೋಣ?","step1.copy":"ಕೆಲವು ವಿವರಗಳು ಪ್ರವಾಸವನ್ನು ವಾಸ್ತವಿಕವಾಗಿಡಲು ಸಹಾಯ ಮಾಡುತ್ತವೆ.",
+    "step2.title":"ನಿಮ್ಮ ಪ್ರವಾಸದ ಆಸಕ್ತಿ ಯಾವುದು?","step2.copy":"ನಿಮಗೆ ಇಷ್ಟವಾದವುಗಳನ್ನು ಆರಿಸಿ. ಅವುಗಳ ಆಧಾರದಲ್ಲಿ ಡೆಮೊ ಸ್ಥಳಗಳನ್ನು ಆಯ್ಕೆ ಮಾಡುತ್ತೇವೆ.",
+    "step3.title":"ಇನ್ನೊಂದು ಸಣ್ಣ ವಿವರ.","step3.copy":"ಪ್ರವಾಸದ ಗತಿ ಮತ್ತು ಅಂದಾಜು ವೆಚ್ಚ ರೂಪಿಸಲು ಇದನ್ನು ಬಳಸುತ್ತೇವೆ.",
+    "field.city":"ಪ್ರಾರಂಭದ ನಗರ","field.month":"ಪ್ರಯಾಣದ ತಿಂಗಳು","field.duration":"ಪ್ರವಾಸದ ಅವಧಿ","field.group":"ಪ್ರಯಾಣಿಕರ ಸಂಖ್ಯೆ",
+    "field.budget":"ಒಟ್ಟು ಪ್ರವಾಸದ ಬಜೆಟ್","field.budgetHint":"ನಿಮ್ಮ ಗುಂಪಿಗೆ · ಅಂದಾಜು ಮಾತ್ರ",
+    "tier.budget":"ಮಿತವ್ಯಯ","tier.comfort":"ಆರಾಮದಾಯಕ","tier.luxury":"ಐಷಾರಾಮಿ",
+    "field.pace":"ಪ್ರವಾಸದ ಗತಿ","pace.relaxed":"ನಿಧಾನ","pace.balanced":"ಸಮತೋಲನ","pace.packed":"ತ್ವರಿತ",
+    "field.offbeat":"ಜನಪ್ರಿಯ ಸ್ಥಳಗಳು ↔ ಅಪರಿಚಿತ ರತ್ನಗಳು","field.popular":"ಪ್ರಸಿದ್ಧ ತಾಣಗಳು","field.hidden":"ಸ್ಥಳೀಯ ಅನ್ವೇಷಣೆ",
+    "field.traveller":"ಯಾರು ಪ್ರಯಾಣಿಸುತ್ತಿದ್ದಾರೆ?","field.transport":"ಪ್ರಯಾಣ ವಿಧಾನ","field.diet":"ಆಹಾರದ ಆಯ್ಕೆ",
+    "field.accessibility":"ಪ್ರವೇಶ ಸೌಲಭ್ಯ","button.next":"ಮುಂದಿನ ಹಂತ →","button.back":"← ಹಿಂದಕ್ಕೆ",
+    "button.generate":"ನನ್ನ ಪ್ರವಾಸ ರೂಪಿಸಿ ✦",
+    "interest.heritage":"ಪಾರಂಪರ್ಯ ಮತ್ತು ದೇವಾಲಯಗಳು","interest.nature":"ಪ್ರಕೃತಿ ಮತ್ತು ಜಲಪಾತಗಳು","interest.wildlife":"ವನ್ಯಜೀವಿಗಳು",
+    "interest.beach":"ಕಡಲತೀರಗಳು","interest.coffee":"ಕಾಫಿ ನಾಡು","interest.adventure":"ಸಾಹಸ",
+    "interest.food":"ಆಹಾರ ಮತ್ತು ಪಾಕಕಲೆ","interest.photo":"ಛಾಯಾಗ್ರಹಣ","interest.spiritual":"ಆಧ್ಯಾತ್ಮ ಮತ್ತು ಕ್ಷೇಮ",
+    "interest.art":"ಕಲೆ ಮತ್ತು ಕರಕುಶಲ",
+    "planner.disclaimer":"ಡೆಮೊ ಅಂದಾಜುಗಳು ಬದಲಾಗಬಹುದು. ಪ್ರಯಾಣಕ್ಕೂ ಮೊದಲು ಪ್ರವೇಶ ಶುಲ್ಕ, ಸಮಯ, ಹವಾಮಾನ ಮತ್ತು ಪ್ರವೇಶ ಸೌಲಭ್ಯ ಪರಿಶೀಲಿಸಿ.",
+    "results.kicker":"ನಿಮಗಾಗಿ ರೂಪಿಸಿದ ಮಾರ್ಗ","results.itinerary":"ದಿನವಾರು ಯೋಜನೆ","results.estimate":"ಆಯ್ದ ಸ್ಥಳಗಳ ಡೆಮೊ ಯೋಜನೆ",
+    "results.route":"ನಿಮ್ಮ ಮಾರ್ಗದ ಚಿತ್ರ","results.schematic":"ಸೂಚಕ ಚಿತ್ರ · ಅಳತೆಗೆ ಅನುಗುಣವಲ್ಲ",
+    "results.mapNote":"ಸೂಚಕ ಮಾರ್ಗ ಚಿತ್ರ","results.budget":"ವೆಚ್ಚದ ಅಂದಾಜು","results.groupTotal":"ಇಡೀ ಗುಂಪಿಗೆ",
+    "results.impact":"ಸ್ಥಳೀಯ ಪ್ರಭಾವ","results.demoScore":"ಡೆಮೊ ಅಂಕ","results.food":"ಸ್ಥಳೀಯ ಆಹಾರ ಪರಿಚಯ",
+    "results.noAds":"ಪ್ರಾಯೋಜಿತ ಸಲಹೆಗಳಿಲ್ಲ","results.season":"ಋತು ಮತ್ತು ಸಾಮಗ್ರಿ","results.notForecast":"ಋತುಸೂಚನೆ",
+    "results.kannada":"ಕನ್ನಡ ಕಾರ್ನರ್","results.audioNote":"ನಿಮ್ಮ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಕನ್ನಡ ಧ್ವನಿ ಲಭ್ಯವಿದ್ದರೆ ಧ್ವನಿ ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತದೆ.",
+    "results.refine":"ನಿಮ್ಮ ಇಷ್ಟಕ್ಕೆ ತಕ್ಕಂತೆ","results.undo":"↶ ಹಿಂದಕ್ಕೆ",
+    "results.refineHelp":"“ನಿಧಾನವಾಗಿ ಮಾಡಿ”, “ಅಪರಿಚಿತ ಸ್ಥಳಗಳು”, “ಕಾಫಿ ಸೇರಿಸಿ” ಅಥವಾ “ಕಡಲತೀರದ ಪ್ರವಾಸ” ಎಂದು ಪ್ರಯತ್ನಿಸಿ. ಇದು ಸರಳ ಡೆಮೊ ನಿಯಮಗಳನ್ನು ಬಳಸುತ್ತದೆ.",
+    "results.refineButton":"ಯೋಜನೆ ಬದಲಿಸಿ →","results.save":"♡ ಉಳಿಸಿ","results.share":"⧉ ಸಾರಾಂಶ ನಕಲಿಸಿ",
+    "footer.note":"ಮಾದರಿ ಡೆಮೊ · ಹೊರಡುವ ಮೊದಲು ಪ್ರಯಾಣದ ವಿವರಗಳನ್ನು ಪರಿಶೀಲಿಸಿ",
+    "day":"ದಿನ","allDays":"ಎಲ್ಲ ದಿನಗಳು","why":"ಇದು ಏಕೆ ಹೊಂದಿಕೆ","tip":"ಸ್ಥಳೀಯ ಸಲಹೆ","travel":"ಅಂದಾಜು ಪ್ರಯಾಣ",
+    "entry":"ಪ್ರವೇಶ ಶುಲ್ಕದ ಅಂದಾಜು","foodKnown":"ಪ್ರಸಿದ್ಧ ಆಹಾರ","packing":"ಸಾಮಗ್ರಿ ಸಲಹೆ","festival":"ಹಬ್ಬದ ಸೂಚನೆ",
+    "budgetWithin":"ನೀವು ನೀಡಿದ ಬಜೆಟ್ ಒಳಗೆ","budgetOver":"ನೀವು ನೀಡಿದ ಬಜೆಟ್‌ಗಿಂತ ಹೆಚ್ಚು",
+    "stay":"ವಸತಿ","meals":"ಆಹಾರ","transportCost":"ಸಾರಿಗೆ","entryFees":"ಪ್ರವೇಶ ಶುಲ್ಕ","buffer":"ಹೆಚ್ಚುವರಿ ಮೊತ್ತ",
+    "budgetSuggestion":"ವೆಚ್ಚ ಕಡಿಮೆ ಮಾಡಲು ಸಾರ್ವಜನಿಕ ಸಾರಿಗೆ ಅಥವಾ ಮಿತವ್ಯಯದ ವಸತಿಯನ್ನು ಪರಿಗಣಿಸಿ.",
+    "impactText":"ಆಫ್‌ಬೀಟ್ ಸ್ಥಳಗಳು, ನಿಮ್ಮ ಆಯ್ಕೆಗಳು ಮತ್ತು ಜಿಲ್ಲೆಗಳ ವೈವಿಧ್ಯವನ್ನು ಆಧರಿಸಿದ ಸೂಚಕ ಅಂಕ—ಸ್ಥಳೀಯ ಆದಾಯದ ಅಳತೆ ಅಲ್ಲ.",
+    "impactDistricts":"ಜಿಲ್ಲೆಗಳು","impactOffbeat":"ಆಫ್‌ಬೀಟ್ ಸ್ಥಳಗಳು",
+    "audioToast":"ಕನ್ನಡ ಧ್ವನಿ ಪ್ರಯತ್ನಿಸಲಾಗುತ್ತಿದೆ. ಧ್ವನಿ ಲಭ್ಯತೆ ನಿಮ್ಮ ಬ್ರೌಸರ್‌ನ್ನು ಅವಲಂಬಿಸಿದೆ.",
+    "savedToast":"ಈ ಸಾಧನದಲ್ಲಿ ಪ್ರವಾಸ ಉಳಿಸಲಾಗಿದೆ.","summaryCopied":"ಪ್ರವಾಸದ ಸಾರಾಂಶ ನಕಲಿಸಲಾಗಿದೆ.",
+    "copyFail":"ಈ ಸಾಧನದಲ್ಲಿ ಸಾರಾಂಶ ನಕಲಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+    "refinedToast":"ಸರಳ ಡೆಮೊ ಯೋಜಕದಿಂದ ಪ್ರವಾಸ ಬದಲಿಸಲಾಗಿದೆ.","unknownRefine":"“ನಿಧಾನ”, “ಅಪರಿಚಿತ ಸ್ಥಳಗಳು”, “ಕಾಫಿ”, “ಕಡಲತೀರ” ಅಥವಾ “ಪಾರಂಪರ್ಯ” ಎಂದು ಪ್ರಯತ್ನಿಸಿ.",
+    "undoToast":"ಹಿಂದಿನ ಯೋಜನೆ ಮರುಸ್ಥಾಪಿಸಲಾಗಿದೆ.",
+    "festDasara":"ಮೈಸೂರು ದಸರಾ ಸಾಮಾನ್ಯವಾಗಿ ಸೆಪ್ಟೆಂಬರ್–ಅಕ್ಟೋಬರ್ ಅವಧಿಯಲ್ಲಿ ನಡೆಯುತ್ತದೆ; ನಿಖರ ದಿನಾಂಕಗಳು ಬದಲಾಗುತ್ತವೆ. ಅಧಿಕೃತ ವೇಳಾಪಟ್ಟಿ ಪರಿಶೀಲಿಸಿ.",
+    "festHampi":"ಹಂಪಿ ಉತ್ಸವದ ದಿನಾಂಕಗಳು ಬದಲಾಗಬಹುದು. ಪ್ರಯಾಣಕ್ಕೂ ಮೊದಲು ಅಧಿಕೃತ ವೇಳಾಪಟ್ಟಿ ಪರಿಶೀಲಿಸಿ.",
+    "seasonMonsoon":"ಮಳೆಗಾಲದಲ್ಲಿ ಕರ್ನಾಟಕದ ಕೆಲವು ಭಾಗಗಳಲ್ಲಿ ಭಾರೀ ಮಳೆಯಾಗಬಹುದು. ಸ್ಥಳೀಯ ಹವಾಮಾನ ಪರಿಶೀಲಿಸಿ; ಯೋಜನೆಯಲ್ಲಿ ಬದಲಾವಣೆಗೆ ಅವಕಾಶವಿಡಿ.",
+    "seasonWarm":"ಇದು ಋತುಸೂಚನೆ ಮಾತ್ರ—ನೇರ ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ಅಲ್ಲ. ನೀರು ಕೊಂಡೊಯ್ಯಿರಿ ಮತ್ತು ಹೊರಾಂಗಣ ಸ್ಥಳಗಳ ಸ್ಥಿತಿ ಪರಿಶೀಲಿಸಿ.",
+    "seasonMild":"ಅನೇಕ ಮಾರ್ಗಗಳಿಗೆ ಅನುಕೂಲಕರ ಕಾಲವಾಗಿರಬಹುದು; ಬೆಟ್ಟ ಮತ್ತು ಕರಾವಳಿ ಹವಾಮಾನ ಬದಲಾಗುತ್ತದೆ.",
+    "flexDays":"ಈ ಡೆಮೊದಲ್ಲಿ ಆಯ್ದ ಸ್ಥಳಗಳು ಕಡಿಮೆ ಇರುವುದರಿಂದ ಉಳಿದ ದಿನಗಳನ್ನು ಹೊಂದಿಕೊಳ್ಳುವ ಸಮಯವಾಗಿ ಬಿಡಲಾಗಿದೆ.",
+    "sampleLoading":"ಆಯ್ದ ಕರ್ನಾಟಕ ಸ್ಥಳಗಳನ್ನು ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ…"
+  }
+};
+
+const MONTH_NUM = {
+  January:1,February:2,March:3,April:4,May:5,June:6,
+  July:7,August:8,September:9,October:10,November:11,December:12
+};
+const CITY_COORDS = {
+  Bengaluru:{lat:12.9716,lng:77.5946},
+  Mysuru:{lat:12.2958,lng:76.6394},
+  Mangaluru:{lat:12.9141,lng:74.8560},
+  "Hubballi-Dharwad":{lat:15.3647,lng:75.1240},
+  Belagavi:{lat:15.8497,lng:74.4977},
+  Kalaburagi:{lat:17.3297,lng:76.8343},
+  Other:{lat:12.9716,lng:77.5946}
+};
+
+/* Small demo dataset. Fees are rough estimates, not live prices. */
+const DESTINATIONS = [
+  ["lalbagh","Lalbagh Botanical Garden","ಲಾಲ್‌ಬಾಗ್ ಸಸ್ಯೋದ್ಯಾನ","Bengaluru","Bengaluru",12.9507,77.5848,["nature","photography","family"],2,50,2,[11,12,1,2],"A historic botanical garden in the heart of Bengaluru, known for its landscaped grounds and glasshouse.","Go early for a quieter walk; check current entry details before visiting.",["Bengaluru darshini fare","Filter coffee"]],
+  ["nandi","Nandi Hills","ನಂದಿ ಬೆಟ್ಟ","Chikkaballapur","Bengaluru",13.3702,77.6835,["nature","adventure","photography"],3,50,3,[10,11,12,1,2],"A hilltop escape north of Bengaluru with broad views and an early-morning rhythm.","Access and opening conditions can change; check locally before setting out.",["Ragi mudde","Benne dose"]],
+  ["devanahalli","Devanahalli Fort","ದೇವನಹಳ್ಳಿ ಕೋಟೆ","Bengaluru Rural","Bengaluru",13.2474,77.7137,["heritage","art","photography"],6,0,1,[10,11,12,1,2],"A historic fort in Devanahalli, useful for a quieter heritage stop near Bengaluru.","Pair it with a nearby stop only after checking travel time.",["North Karnataka-style meals"]],
+  ["savandurga","Savandurga","ಸಾವನದುರ್ಗ","Bengaluru Rural","Bengaluru",12.9235,77.2930,["nature","adventure","spiritual"],6,0,4,[11,12,1,2],"A large granite hill west of Bengaluru, known for trekking and its landscape.","Trekking conditions and access need local confirmation; avoid unsafe weather.",["Ragi mudde","Akki roti"]],
+  ["palace","Mysuru Palace","ಮೈಸೂರು ಅರಮನೆ","Mysuru","Mysuru",12.3052,76.6552,["heritage","art","photography","family"],1,100,2,[10,11,12,1,2],"The historic royal palace is a major landmark of Mysuru and a strong heritage anchor.","Check current visiting hours, photography rules and entry fee.",["Mysore pak","Bisi bele bath"]],
+  ["srirangapatna","Srirangapatna","ಶ್ರೀರಂಗಪಟ್ಟಣ","Mandya","Mysuru",12.4220,76.6840,["heritage","spiritual","nature"],5,30,2,[10,11,12,1,2],"An island town on the Kaveri with layers of history and important heritage sites.","Allow time between sites and verify opening hours locally.",["Mysuru-style meals","Filter coffee"]],
+  ["chamundi","Chamundi Hill","ಚಾಮುಂಡಿ ಬೆಟ್ಟ","Mysuru","Mysuru",12.2720,76.6690,["spiritual","nature","photography"],3,0,2,[10,11,12,1,2],"A hill overlooking Mysuru with a prominent temple and city views.","The hill has steps and road access; check current conditions and accessibility.",["Mysore pak","South Indian breakfast"]],
+  ["brindavan","Brindavan Gardens","ಬೃಂದಾವನ ಉದ್ಯಾನ","Mandya","Mysuru",12.4210,76.5730,["nature","family","photography"],2,30,2,[10,11,12,1,2],"A landscaped garden near the KRS dam, often visited in the evening.","Confirm current opening times and any show schedule before travelling.",["Mysuru-style meals","Bisi bele bath"]],
+  ["ranganathittu","Ranganathittu Bird Sanctuary","ರಂಗನತಿಟ್ಟು ಪಕ್ಷಿಧಾಮ","Mandya","Mysuru",12.4240,76.6610,["wildlife","nature","photography"],5,75,2,[11,12,1,2],"A riverine bird sanctuary near Srirangapatna; wildlife sightings vary by season.","Follow sanctuary guidance and confirm boating and entry availability.",["Mysuru-style meals"]],
+  ["rajas-seat","Raja’s Seat","ರಾಜಾ ಸೀಟ್","Kodagu","Coorg",12.4209,75.7382,["nature","photography","family"],2,20,1,[10,11,12,1,2],"A viewpoint in Madikeri with broad views over the surrounding hills.","Cloud and visibility conditions vary; check locally.",["Akki roti","Coorg-style coffee"]],
+  ["abbey","Abbey Falls","ಅಬ್ಬೆ ಜಲಪಾತ","Kodagu","Coorg",12.4550,75.7380,["nature","adventure","photography"],2,20,2,[7,8,9,10,11,12],"A waterfall near Madikeri, reached by a short walk through greenery.","Water levels and access vary by season; use marked paths and follow local notices.",["Kadambuttu","Akki roti"]],
+  ["talacauvery","Talacauvery","ತಲಕಾವೇರಿ","Kodagu","Coorg",12.3890,75.4900,["spiritual","nature","photography"],6,0,2,[10,11,12,1,2],"A sacred source area in the Brahmagiri hills, valued for its setting and cultural significance.","Hill weather can change quickly; check road and site conditions before travelling.",["Akki roti","Coorg-style coffee"]],
+  ["madikeri-fort","Madikeri Fort","ಮಡಿಕೇರಿ ಕೋಟೆ","Kodagu","Coorg",12.4230,75.7380,["heritage","art","photography"],3,0,1,[10,11,12,1,2],"A historic fort in Madikeri that adds a heritage stop to a Kodagu visit.","Verify current access and opening hours.",["Coorg-style coffee","Akki roti"]],
+  ["coffee-country","Coorg coffee landscape","ಕೊಡಗಿನ ಕಾಫಿ ನಾಡು","Kodagu","Coorg",12.4350,75.7600,["coffee","nature","food"],7,0,2,[10,11,12,1,2],"A regional coffee-growing landscape—not a named estate or booked activity.","Choose a locally operated experience and confirm access directly; no specific business is endorsed.",["Coorg-style coffee","Akki roti"]],
+  ["mullayanagiri","Mullayanagiri","ಮುಳ್ಳಯ್ಯನಗಿರಿ","Chikkamagaluru","Malnad",13.3903,75.7213,["nature","adventure","photography"],3,0,3,[10,11,12,1,2],"A high peak in the Chikkamagaluru region, popular for mountain views.","Road, weather and trekking conditions can change; verify locally.",["Akki roti","Filter coffee"]],
+  ["belur","Chennakeshava Temple, Belur","ಬೇಲೂರಿನ ಚೆನ್ನಕೇಶವ ದೇವಸ್ಥಾನ","Hassan","Malnad",13.1630,75.8620,["heritage","art","spiritual","photography"],4,0,2,[10,11,12,1,2],"A celebrated Hoysala-era temple known for detailed stone sculpture.","Respect site guidance and check current entry and photography rules.",["Akki roti","Local Karnataka meals"]],
+  ["halebidu","Hoysaleswara Temple, Halebidu","ಹಳೇಬೀಡಿನ ಹೊಯ್ಸಳೇಶ್ವರ ದೇವಸ್ಥಾನ","Hassan","Malnad",13.2120,75.9950,["heritage","art","spiritual"],5,0,2,[10,11,12,1,2],"A major Hoysala temple site with intricate sculptural detail.","Allow time to explore respectfully; verify current opening hours.",["Akki roti","Local Karnataka meals"]],
+  ["jog","Jog Falls","ಜೋಗ ಜಲಪಾತ","Shivamogga","Malnad",14.2280,74.8100,["nature","photography","adventure"],5,0,3,[7,8,9,10],"A major waterfall on the Sharavathi River; the view changes considerably with the season.","Check water conditions, viewpoints and road access before travelling.",["Akki roti","Local Karnataka meals"]],
+  ["dandeli","Dandeli Wildlife Sanctuary","ದಾಂಡೇಲಿ ವನ್ಯಜೀವಿ ಅಭಯಾರಣ್ಯ","Uttara Kannada","Dandeli",15.2500,74.6200,["wildlife","nature","adventure"],7,0,4,[10,11,12,1,2],"A forest landscape in Uttara Kannada associated with wildlife and outdoor activities.","Use authorized operators where needed and confirm current access and safety guidance.",["North Karnataka meals","Jolada rotti"]],
+  ["virupaksha","Virupaksha Temple, Hampi","ಹಂಪಿಯ ವಿರೂಪಾಕ್ಷ ದೇವಸ್ಥಾನ","Vijayanagara","Hampi",15.3350,76.4600,["heritage","spiritual","art"],1,0,2,[10,11,12,1,2],"A landmark temple in the Hampi heritage landscape, with a long history of worship.","Dress and behave respectfully; check current visitor guidance.",["Jolada rotti","Local thali"]],
+  ["hemakuta","Hemakuta Hill, Hampi","ಹಂಪಿಯ ಹೇಮಕೂಟ ಬೆಟ್ಟ","Vijayanagara","Hampi",15.3250,76.4640,["heritage","nature","photography"],3,0,2,[10,11,12,1,2],"A hilltop heritage area in Hampi with views across the historic landscape.","Plan for sun and uneven stone paths; avoid climbing in unsafe conditions.",["Jolada rotti","Local thali"]],
+  ["anegundi","Anegundi","ಆನೆಗುಂದಿ","Koppal","Hampi",15.3510,76.4760,["heritage","nature","photography"],7,0,3,[10,11,12,1,2],"A historic settlement across the river from the main Hampi area.","Check ferry or road arrangements and current local access before visiting.",["Jolada rotti","Local Karnataka meals"]],
+  ["vittala","Vittala Temple, Hampi","ಹಂಪಿಯ ವಿಠ್ಠಲ ದೇವಸ್ಥಾನ","Vijayanagara","Hampi",15.3350,76.4800,["heritage","art","photography"],1,50,2,[10,11,12,1,2],"A major monument in the Hampi landscape known for its architectural detail.","Check current entry arrangements and site rules before visiting.",["Jolada rotti","Local thali"]],
+  ["badami","Badami Cave Temples","ಬಾದಾಮಿ ಗುಹಾಂತರ ದೇವಾಲಯಗಳು","Bagalkot","Badami",15.9140,75.6760,["heritage","art","spiritual","photography"],3,30,2,[10,11,12,1,2],"Rock-cut cave temples overlook the Agastya lake in Badami.","Expect steps and uneven surfaces; confirm accessibility and entry details.",["Jolada rotti","North Karnataka meals"]],
+  ["pattadakal","Pattadakal","ಪಟ್ಟದಕಲ್ಲು","Bagalkot","Badami",16.0200,75.8800,["heritage","art","spiritual"],4,40,2,[10,11,12,1,2],"A UNESCO-listed temple complex in the historic Chalukya region.","Check current site rules and allow time for the wider heritage landscape.",["Jolada rotti","North Karnataka meals"]],
+  ["aihole","Aihole","ಐಹೊಳೆ","Bagalkot","Badami",16.0200,75.8805,["heritage","art","photography"],6,0,2,[10,11,12,1,2],"An important early temple architecture site in the Badami-Aihole-Pattadakal region.","Distances between sites add up; plan transport and check access locally.",["Jolada rotti","North Karnataka meals"]],
+  ["gokarna","Gokarna","ಗೋಕರ್ಣ","Uttara Kannada","Coast",14.5470,74.3190,["beach","spiritual","nature"],3,0,2,[10,11,12,1,2],"A coastal town with religious significance and access to nearby beaches.","Respect temple customs and check sea conditions before water activities.",["Neer dose","Coastal Karnataka meals"]],
+  ["kudle","Kudle Beach","ಕುಡ್ಲೆ ಕಡಲತೀರ","Uttara Kannada","Coast",14.5340,74.3190,["beach","nature","adventure"],3,0,2,[10,11,12,1,2],"A beach near Gokarna suited to a relaxed coastal stop.","Swim only where safe; follow local flags, lifeguard advice and sea conditions.",["Neer dose","Coastal meals"]],
+  ["murudeshwar","Murudeshwar","ಮುರುಡೇಶ್ವರ","Uttara Kannada","Coast",14.0940,74.4840,["beach","spiritual","photography"],2,0,2,[10,11,12,1,2],"A coastal pilgrimage town with a prominent temple and sea views.","Check temple guidance, visiting hours and coastal conditions.",["Neer dose","Coastal Karnataka meals"]],
+  ["maravanthe","Maravanthe Beach","ಮರವಂತೆ ಕಡಲತೀರ","Udupi","Coast",13.7570,74.5960,["beach","nature","photography"],6,0,1,[10,11,12,1,2],"A distinctive coastal stretch where sea and backwater landscapes meet.","Use safe crossing points and check road and sea conditions.",["Neer dose","Udupi cuisine"]]
+].map(([id,name,kn,district,cluster,lat,lng,cats,offbeat,fee,hours,best,story,tip,foods]) =>
+  ({id,name,kn,district,cluster,lat,lng,cats,offbeat,fee,hours,best,story,tip,foods})
+);
+
+const PHRASES = [
+  {kn:"ನಮಸ್ಕಾರ",say:"Namaskāra",en:"Hello"},
+  {kn:"ದಯವಿಟ್ಟು, ಇಲ್ಲಿ ಹೇಗೆ ಹೋಗುವುದು?",say:"Dayavittu, illige hēge hōguvudu?",en:"Please, how do I get here?"},
+  {kn:"ಒಂದು ಚಹಾ ಕೊಡಿ.",say:"Ondu chahā koḍi.",en:"One tea, please."},
+  {kn:"ಧನ್ಯವಾದಗಳು",say:"Dhanyavādagaḷu",en:"Thank you"}
+];
+const CLUSTER_LABELS = {
+  Bengaluru:{en:"Bengaluru circuit",kn:"ಬೆಂಗಳೂರು ಮಾರ್ಗ"},
+  Mysuru:{en:"Mysuru & Mandya",kn:"ಮೈಸೂರು ಮತ್ತು ಮಂಡ್ಯ"},
+  Coorg:{en:"Kodagu / Coorg",kn:"ಕೊಡಗು"},
+  Malnad:{en:"Malnad & Hoysala country",kn:"ಮಲೆನಾಡು ಮತ್ತು ಹೊಯ್ಸಳ ನಾಡು"},
+  Dandeli:{en:"Dandeli & Uttara Kannada",kn:"ದಾಂಡೇಲಿ ಮತ್ತು ಉತ್ತರ ಕನ್ನಡ"},
+  Hampi:{en:"Hampi heritage landscape",kn:"ಹಂಪಿ ಪಾರಂಪರಿಕ ಪ್ರದೇಶ"},
+  Badami:{en:"Badami heritage circuit",kn:"ಬಾದಾಮಿ ಪಾರಂಪರಿಕ ಮಾರ್ಗ"},
+  Coast:{en:"Coastal Karnataka",kn:"ಕರಾವಳಿ ಕರ್ನಾಟಕ"}
+};
+const CITY_KN = {
+  Bengaluru:"ಬೆಂಗಳೂರು",Mysuru:"ಮೈಸೂರು",Mangaluru:"ಮಂಗಳೂರು",
+  "Hubballi-Dharwad":"ಹುಬ್ಬಳ್ಳಿ-ಧಾರವಾಡ",Belagavi:"ಬೆಳಗಾವಿ",Kalaburagi:"ಕಲಬುರಗಿ",Other:"ಇತರೆ"
+};
+
+let language = (()=>{try{return localStorage.getItem("ny-language")||"en"}catch{return "en"}})();
+let currentPlan = null;
+let previousPlan = null;
+let activeStep = 1;
+let toastTimer = null;
+
+function tr(key){return (I18N[language]&&I18N[language][key])||I18N.en[key]||key}
+function esc(value){
+  return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function money(value){return "₹"+Math.round(value).toLocaleString("en-IN")}
+function toast(message){
+  const el=document.getElementById("toast");
+  el.textContent=message;el.classList.add("show");
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2800);
+}
+function applyLanguage(){
+  document.documentElement.lang=language==="kn"?"kn":"en";
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const value=tr(el.dataset.i18n);
+    if(value)el.textContent=value;
+  });
+  document.querySelectorAll("option[data-en][data-kn]").forEach(el=>{
+    el.textContent=language==="kn"?el.dataset.kn:el.dataset.en;
+  });
+  document.getElementById("languageBtn").textContent=language==="en"?"ಕನ್ನಡ":"English";
+  try{localStorage.setItem("ny-language",language)}catch{}
+  if(currentPlan)renderResults(currentPlan);
+}
+function setStep(step){
+  activeStep=Math.max(1,Math.min(3,step));
+  document.querySelectorAll(".wizard-step").forEach(el=>el.hidden=Number(el.dataset.step)!==activeStep);
+  document.querySelectorAll(".step-tab").forEach(el=>el.classList.toggle("active",Number(el.dataset.stepTab)===activeStep));
+  document.getElementById("stepCount").textContent=activeStep;
+  document.getElementById("progressFill").style.width=((activeStep-1)/2*100)+"%";
+}
+function setBudget(value){
+  const input=document.getElementById("budget");
+  input.value=Math.max(3000,Math.min(200000,Number(value)||30000));
+  document.getElementById("budgetValue").textContent=money(input.value);
+}
+function setFormInput(input){
+  if(input.start&&[...document.getElementById("startCity").options].some(o=>o.value===input.start))
+    document.getElementById("startCity").value=input.start;
+  if(input.month)document.getElementById("travelMonth").value=input.month;
+  if(input.duration)document.getElementById("duration").value=input.duration;
+  if(input.group)document.getElementById("groupSize").value=input.group;
+  if(input.budget)setBudget(input.budget);
+  if(input.traveller)document.getElementById("travellerType").value=input.traveller;
+  if(input.transport)document.getElementById("transport").value=input.transport;
+  if(input.diet)document.getElementById("diet").value=input.diet;
+  if(input.accessibility)document.getElementById("accessibility").value=input.accessibility;
+  if(input.offbeat!==undefined){
+    document.getElementById("offbeat").value=input.offbeat;
+    document.getElementById("offbeatValue").textContent=input.offbeat+"% hidden";
+  }
+  if(input.interests){
+    document.querySelectorAll(".interest").forEach(btn=>{
+      const active=input.interests.includes(btn.dataset.interest);
+      btn.classList.toggle("active",active);btn.setAttribute("aria-pressed",String(active));
+    });
+  }
+  if(input.pace){
+    document.querySelectorAll(".choice-btn").forEach(btn=>btn.classList.toggle("active",btn.dataset.pace===input.pace));
+  }
+}
+function getFormInput(){
+  return {
+    start:document.getElementById("startCity").value,
+    month:document.getElementById("travelMonth").value,
+    duration:Number(document.getElementById("duration").value)||3,
+    group:Number(document.getElementById("groupSize").value)||2,
+    budget:Number(document.getElementById("budget").value)||30000,
+    interests:[...document.querySelectorAll(".interest.active")].map(el=>el.dataset.interest),
+    pace:document.querySelector(".choice-btn.active")?.dataset.pace||"balanced",
+    offbeat:Number(document.getElementById("offbeat").value)||0,
+    traveller:document.getElementById("travellerType").value,
+    transport:document.getElementById("transport").value,
+    diet:document.getElementById("diet").value,
+    accessibility:document.getElementById("accessibility").value
+  };
+}
+function haversine(a,b){
+  const rad=x=>x*Math.PI/180,R=6371;
+  const dLat=rad(b.lat-a.lat),dLng=rad(b.lng-a.lng);
+  const v=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLng/2)**2;
+  return 2*R*Math.asin(Math.sqrt(v));
+}
+function avgPoint(list){
+  return {lat:list.reduce((s,d)=>s+d.lat,0)/list.length,lng:list.reduce((s,d)=>s+d.lng,0)/list.length};
+}
+function matchingCount(dest,interests){return interests.filter(i=>dest.cats.includes(i)).length}
+function chooseCluster(input,forcedCluster){
+  if(forcedCluster&&DESTINATIONS.some(d=>d.cluster===forcedCluster))return forcedCluster;
+  const interests=input.interests.length?input.interests:["heritage","nature"];
+  const start=CITY_COORDS[input.start]||CITY_COORDS.Bengaluru;
+  const names=[...new Set(DESTINATIONS.map(d=>d.cluster))];
+  const scores=names.map(name=>{
+    const list=DESTINATIONS.filter(d=>d.cluster===name);
+    const center=avgPoint(list);
+    const dist=haversine(start,center);
+    const match=list.reduce((sum,d)=>sum+matchingCount(d,interests),0)/list.length;
+    const off=list.reduce((sum,d)=>sum+d.offbeat,0)/list.length;
+    const offFit=10-Math.abs(off-input.offbeat/10);
+    let score=match*2.6+offFit*.23-dist/(input.duration<=2?230:340);
+    if(dist<160)score+=.7;
+    if(input.duration<=2&&dist>250)score-=1.2;
+    if(input.budget/Math.max(1,input.group)<5000&&dist>250)score-=.8;
+    if(interests.includes("coffee")&&name==="Coorg")score+=1.6;
+    if(interests.includes("beach")&&name==="Coast")score+=1.6;
+    return {name,score};
+  }).sort((a,b)=>b.score-a.score);
+  return scores[0]?.name||"Mysuru";
+}
+function createPlan(input,forcedCluster){
+  const clean={
+    ...input,
+    interests:input.interests.length?input.interests:["heritage","nature"],
+    duration:Math.max(1,Math.min(14,Number(input.duration)||3)),
+    group:Math.max(1,Number(input.group)||2)
+  };
+  let cluster=chooseCluster(clean,forcedCluster);
+  if(clean.interests.includes("coffee")&&!forcedCluster)cluster="Coorg";
+  if(clean.interests.includes("beach")&&!forcedCluster)cluster="Coast";
+  let pool=DESTINATIONS.filter(d=>d.cluster===cluster);
+  const monthNum=MONTH_NUM[clean.month]||10;
+  const preference=clean.offbeat/10;
+  const ranked=pool.map(d=>{
+    const matches=matchingCount(d,clean.interests);
+    const offFit=10-Math.abs(d.offbeat-preference);
+    const season=d.best.includes(monthNum)?1.2:0;
+    return {...d,_score:matches*4+offFit*.25+season};
+  }).sort((a,b)=>b._score-a._score);
+
+  const paceFactor=clean.pace==="relaxed"?1:clean.pace==="packed"?3:2;
+  const target=Math.min(8,Math.max(clean.duration,clean.duration*paceFactor));
+  const picked=ranked.slice(0,Math.min(target,ranked.length));
+  const origin=CITY_COORDS[clean.start]||CITY_COORDS.Bengaluru;
+
+  // Nearest-neighbour ordering keeps the demo route geographically sensible.
+  const remaining=[...picked],ordered=[];
+  let cursor=origin;
+  while(remaining.length){
+    let bestIndex=0,bestDistance=Infinity;
+    remaining.forEach((d,i)=>{
+      const distance=haversine(cursor,d);
+      if(distance<bestDistance){bestDistance=distance;bestIndex=i}
+    });
+    const next=remaining.splice(bestIndex,1)[0];
+    ordered.push(next);cursor=next;
+  }
+
+  const actualDays=Math.max(1,Math.min(clean.duration,ordered.length));
+  const perDay=Math.ceil(ordered.length/actualDays);
+  let stopIndex=0,previous=origin;
+  const days=Array.from({length:actualDays},(_,dayIndex)=>{
+    const items=ordered.slice(dayIndex*perDay,(dayIndex+1)*perDay).map((d,slotIndex)=>{
+      const roadKm=haversine(previous,d)*1.25;
+      const travelMins=Math.max(10,Math.round(roadKm/35*60));
+      previous=d;stopIndex++;
+      return {...d,day:dayIndex+1,slot:slotIndex===0?"Morning":slotIndex===1?"Afternoon":"Evening",
+        travelMins,why:matchingCount(d,clean.interests)>0
+          ?"Matches your selected interests and this route’s regional focus."
+          :"Adds a complementary local perspective to the route."};
+    });
+    return {number:dayIndex+1,stops:items};
+  });
+  const flat=days.flatMap(day=>day.stops);
+  let routeKm=haversine(origin,flat[0]||origin);
+  for(let i=1;i<flat.length;i++)routeKm+=haversine(flat[i-1],flat[i]);
+  if(flat.length)routeKm+=haversine(flat[flat.length-1],origin);
+  routeKm=Math.round(routeKm*1.25);
+
+  const nights=Math.max(0,actualDays-1);
+  const perNight=Math.max(600,Math.min(4500,(clean.budget/(clean.group*clean.duration))*.28));
+  const stay=Math.round(nights*clean.group*perNight);
+  const food=Math.round(actualDays*clean.group*450);
+  const modeRate=clean.transport==="own-car"?10:clean.transport==="cab"?18:clean.transport==="bus-train"?6:11;
+  const transport=Math.round(routeKm*modeRate*(clean.transport==="bus-train"?clean.group:1));
+  const entry=Math.round(flat.reduce((sum,d)=>sum+d.fee,0)*clean.group);
+  const buffer=Math.round((stay+food+transport+entry)*.1);
+  const total=stay+food+transport+entry+buffer;
+  const districts=[...new Set(flat.map(d=>d.district))];
+  const avgOff=flat.reduce((sum,d)=>sum+d.offbeat,0)/Math.max(1,flat.length);
+  const impact=Math.min(100,Math.round(30+avgOff*5+districts.length*4+clean.offbeat*.13));
+
+  return {
+    input:clean,cluster,days,stops:flat,routeKm,actualDays,flexDays:Math.max(0,clean.duration-actualDays),
+    districts,impact,
+    costs:{stay,food,transport,entry,buffer,total}
+  };
+}
+function formatDuration(minutes){
+  if(minutes<60)return minutes+" min";
+  const hours=Math.floor(minutes/60),mins=minutes%60;
+  return hours+"h"+(mins?" "+mins+"m":"");
+}
+function reasonFor(d,input){
+  const hits=d.cats.filter(cat=>input.interests.includes(cat));
+  if(hits.includes("heritage")||hits.includes("art"))return language==="kn"?"ಪಾರಂಪರ್ಯ ಮತ್ತು ಕಲೆಯ ಆಸಕ್ತಿಗೆ ಹೊಂದಿಕೆ.":"A strong match for your interest in heritage and architecture.";
+  if(hits.includes("nature")||hits.includes("adventure"))return language==="kn"?"ಪ್ರಕೃತಿ ಮತ್ತು ಹೊರಾಂಗಣ ಅನುಭವಕ್ಕೆ ಹೊಂದಿಕೆ.":"A good fit for your interest in nature and the outdoors.";
+  if(hits.includes("coffee"))return language==="kn"?"ಕಾಫಿ ನಾಡಿನ ಸ್ಥಳೀಯ ಅನುಭವಕ್ಕೆ ಹೊಂದಿಕೆ.":"A regional coffee-country experience, without naming an unverified business.";
+  if(hits.includes("beach"))return language==="kn"?"ಕರಾವಳಿ ಮತ್ತು ಕಡಲತೀರದ ಆಸಕ್ತಿಗೆ ಹೊಂದಿಕೆ.":"A match for your interest in the Karnataka coast.";
+  return d.why;
+}
+function festivalNote(plan){
+  if(["September","October"].includes(plan.input.month))return tr("festDasara");
+  if(plan.cluster==="Hampi"&&["November","January"].includes(plan.input.month))return tr("festHampi");
+  return "";
+}
+function seasonNote(month){
+  if(["June","July","August","September"].includes(month))return tr("seasonMonsoon");
+  if(["March","April","May"].includes(month))return tr("seasonWarm");
+  return tr("seasonMild");
+}
+function renderResults(plan){
+  currentPlan=plan;
+  const label=CLUSTER_LABELS[plan.cluster]?.[language]||plan.cluster;
+  const start=language==="kn"?(CITY_KN[plan.input.start]||plan.input.start):plan.input.start;
+  document.getElementById("resultsTitle").textContent=language==="kn"
+    ?`${start}ನಿಂದ ${plan.actualDays} ದಿನಗಳ ${label} ಪ್ರವಾಸ`
+    :`${plan.actualDays}-day ${label} trip from ${start}`;
+  document.getElementById("resultsSummary").textContent=
+    `${plan.stops.length} ${language==="kn"?"ಆಯ್ದ ಸ್ಥಳಗಳು":"curated stops"} · ${plan.input.group} ${language==="kn"?"ಪ್ರಯಾಣಿಕರು":"travellers"} · ~${plan.routeKm} km ${language==="kn"?"ಸೂಚಕ ಪ್ರಯಾಣ":"estimated travel"}`;
+
+  const filter=document.getElementById("dayFilter");
+  filter.innerHTML=`<button class="day-filter-btn active" data-day-filter="all">${esc(tr("allDays"))}</button>`+
+    plan.days.map(d=>`<button class="day-filter-btn" data-day-filter="${d.number}">${esc(tr("day"))} ${d.number}</button>`).join("");
+
+  const titles={
+    Mysuru:["Royal stories & the Kaveri","Hilltop air & garden paths","Mysuru at an unhurried pace"],
+    Coorg:["Madikeri and its hills","Water, coffee and forest air","A slower Kodagu day"],
+    Hampi:["Stone stories of Hampi","Across the river and back in time","A day among monuments"],
+    Coast:["Coastal culture and sea air","A slower stretch by the sea","Temples, tides and local food"],
+    Badami:["Chalukya country","Temple towns and red sandstone","A day among the monuments"],
+    Malnad:["Hoysala stories","Highland air and waterfall views","A gentle Malnad day"],
+    Bengaluru:["Garden city beginnings","A fort, a hill or a green escape","Bengaluru at your own pace"],
+    Dandeli:["Forest and river country","A slower Uttara Kannada day","Green routes and local life"]
+  };
+  const dayHtml=plan.days.map((day,i)=>{
+    const title=(titles[plan.cluster]||["A day in Karnataka","Local stories and landscapes","A gentler day"])[i%3];
+    return `<section class="day-group" data-day-group="${day.number}">
+      <div class="day-title-row"><strong>${esc(tr("day"))} ${day.number} · ${esc(title)}</strong><span>${day.stops.length} ${language==="kn"?"ಸ್ಥಳಗಳು":"stops"}</span></div>
+      ${day.stops.map(d=>{
+        const fee=d.fee?money(d.fee)+" approx.":(language==="kn"?"ಸ್ಥಳೀಯ ಶುಲ್ಕ ಪರಿಶೀಲಿಸಿ":"Check locally");
+        return `<article class="stop-card" id="stop-${esc(d.id)}" data-stop-card="${esc(d.id)}">
+          <div class="stop-meta"><span>${esc(d.slot)} · ${esc(d.district)} district</span><span>${esc(d.hours)} ${language==="kn"?"ಗಂಟೆ":"hrs"} · ${esc(tr("travel"))}: ${esc(formatDuration(d.travelMins))}</span></div>
+          <h4>${esc(d.name)} <span>${esc(d.kn)}</span></h4>
+          <p class="stop-story">${esc(language==="kn"?"ಸ್ಥಳೀಯ ಪಾರಂಪರ್ಯ, ಪ್ರಕೃತಿ ಮತ್ತು ಪ್ರಾದೇಶಿಕ ಅನುಭವವನ್ನು ಆಧರಿಸಿದ ಆಯ್ಕೆ.":d.story)}</p>
+          <div class="stop-detail"><b>${esc(tr("why"))}:</b> ${esc(reasonFor(d,plan.input))}</div>
+          <div class="stop-detail"><b>${esc(tr("tip"))}:</b> ${esc(language==="kn"?"ಪ್ರಯಾಣಕ್ಕೂ ಮೊದಲು ಸ್ಥಳೀಯ ಸಮಯ ಮತ್ತು ಪ್ರವೇಶ ವಿವರ ಪರಿಶೀಲಿಸಿ.":d.tip)}</div>
+          <div class="stop-foot">
+            <span class="mini-chip">${esc(tr("entry"))}: ${esc(fee)}</span>
+            <span class="mini-chip">${esc(tr("foodKnown"))}: ${esc(d.foods.slice(0,2).join(" · "))}</span>
+          </div>
+        </article>`;
+      }).join("")}
+    </section>`;
+  }).join("")+(plan.flexDays?`<p class="flex-note">${esc(tr("flexDays"))}</p>`:"");
+  document.getElementById("itineraryDays").innerHTML=dayHtml;
+
+  const allStops=plan.stops;
+  const points=allStops.map((d,i)=>{
+    const x=allStops.length===1?500:110+i*(780/(allStops.length-1));
+    const y=i%2===0?115:220;
+    return {d,x,y,i};
+  });
+  let path="";
+  if(points.length){
+    path=`M ${points[0].x} ${points[0].y}`;
+    for(let i=1;i<points.length;i++){
+      const mid=(points[i-1].x+points[i].x)/2;
+      path+=` Q ${mid} ${points[i-1].y} ${points[i].x} ${points[i].y}`;
+    }
+  }
+  const pins=points.map(p=>{
+    const color=["#b3202a","#1f6f50","#0e7c86","#bf8a00"][((p.d.day||1)-1)%4];
+    return `<button class="map-pin ${p.i%2?"below":""} ${p.x>640?"flip":""}" data-map-stop="${esc(p.d.id)}" data-map-day="${p.d.day}" style="left:${p.x/10}%;top:${p.y/3.2}%;--pin:${color}" aria-label="Highlight ${esc(p.d.name)}">
+      <span class="pin-circle">${p.i+1}</span><span class="pin-tag">${esc(p.d.name)}</span>
+    </button>`;
+  }).join("");
+  document.getElementById("mapBoard").innerHTML=
+    `<svg class="route-svg" viewBox="0 0 1000 320" preserveAspectRatio="none" aria-hidden="true">
+      <path class="contour" d="M-40 80 Q130 20 270 80 T570 75 T1050 90"/>
+      <path class="contour" d="M-20 265 Q140 200 300 254 T610 238 T1040 260"/>
+      <path class="contour" d="M80 0 Q130 95 75 170 T120 350"/>
+      <path class="contour" d="M830 -10 Q770 80 850 170 T810 340"/>
+      <path class="route-shadow" d="${path}"/><path class="route-line" d="${path}"/>
+    </svg>${pins}`;
+
+  const c=plan.costs;
+  document.getElementById("routeDistance").textContent=`~ ${plan.routeKm} km ${language==="kn"?"ಪ್ರಯಾಣದ ಅಂದಾಜು":"travel estimate"}`;
+  const status=c.total<=plan.input.budget?tr("budgetWithin"):tr("budgetOver");
+  const rows=[
+    [tr("stay"),c.stay,"#1f6f50"],[tr("meals"),c.food,"#0e7c86"],
+    [tr("transportCost"),c.transport,"#bf8a00"],[tr("entryFees"),c.entry,"#b3202a"],
+    [tr("buffer"),c.buffer,"#87917e"]
+  ];
+  document.getElementById("budgetBreakdown").innerHTML=
+    `<div class="budget-total"><div><span>${language==="kn"?"ಒಟ್ಟು ಅಂದಾಜು":"Estimated total"}</span><br><strong>${money(c.total)}</strong></div>
+    <div class="budget-status ${c.total>plan.input.budget?"over":""}">${esc(status)}<br>${language==="kn"?"ಬಜೆಟ್":"Budget"}: ${money(plan.input.budget)}</div></div>
+    ${rows.map(([name,value,color])=>`<div class="budget-row"><label>${esc(name)}</label><div class="budget-bar"><i style="width:${Math.max(3,Math.min(100,value/Math.max(c.total,1)*100))}%;--bar:${color}"></i></div><b>${money(value)}</b></div>`).join("")}
+    ${c.total>plan.input.budget?`<p class="budget-note">${esc(tr("budgetSuggestion"))}</p>`:""}
+    <p class="budget-note">${language==="kn"?"ಇವು ಮಾದರಿ ಅಂದಾಜುಗಳು; ನೇರ ದರಗಳಲ್ಲ.":"Rule-based demo estimates—not live prices. Entry fees and actual road routes may differ."}</p>`;
+
+  document.getElementById("impactCard").innerHTML=
+    `<div class="impact-body">
+      <div class="impact-ring" style="--progress:${plan.impact*3.6}deg"><strong>${plan.impact}</strong></div>
+      <div class="impact-copy"><b>${language==="kn"?"ಸ್ಥಳೀಯ ಆಯ್ಕೆ ಸೂಚಕ":"Local-choice signal"}</b>
+      <p>${esc(tr("impactText"))}</p>
+      <p>${plan.districts.length} ${esc(tr("impactDistricts"))} · ${plan.stops.filter(d=>d.offbeat>=5).length} ${esc(tr("impactOffbeat"))}</p></div>
+    </div>
+    <p class="budget-note">${plan.cluster==="Hampi"
+      ?(language==="kn"?"ಹಂಪಿ ಜೊತೆಗೆ ಐಹೊಳೆ ಅಥವಾ ಪಟ್ಟದಕಲ್ಲು ಸೇರಿಸಿ ಉತ್ತರ ಕರ್ನಾಟಕದ ಪಾರಂಪರ್ಯವನ್ನು ಹಂಚಿಕೊಳ್ಳಿ.":"Spread the journey: consider Aihole or Pattadakal alongside Hampi.")
+      :(language==="kn"?"ಸ್ಥಳೀಯವಾಗಿ ನಡೆಸುವ ಅನುಭವಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ; ಪ್ರವೇಶ ಮತ್ತು ಲಭ್ಯತೆಯನ್ನು ಮುಂಚಿತವಾಗಿ ಪರಿಶೀಲಿಸಿ.":"Choose locally operated experiences where available; verify access and availability first.")}</p>`;
+
+  const foods=[...new Set(allStops.flatMap(d=>d.foods))].slice(0,7);
+  document.getElementById("foodCard").innerHTML=
+    `<p>${language==="kn"?"ಈ ಪ್ರದೇಶಗಳಲ್ಲಿ ಸಾಮಾನ್ಯವಾಗಿ ಪರಿಚಿತವಾದ ರುಚಿಗಳು. ನಿರ್ದಿಷ್ಟ ರೆಸ್ಟೋರೆಂಟ್‌ಗಳ ಶಿಫಾರಸುಗಳಲ್ಲ.":"Regional dishes and food traditions—not specific restaurant recommendations."}</p>
+    <div class="food-tags">${foods.map(f=>`<span class="food-tag">${esc(f)}</span>`).join("")}</div>`;
+
+  const fNote=festivalNote(plan);
+  const pack=plan.cluster==="Coorg"||plan.cluster==="Malnad"
+    ?(language==="kn"?"ಬೆಟ್ಟದ ಸಂಜೆಗಳಿಗೆ ಹಗುರ ಜಾಕೆಟ್; ಆರಾಮದಾಯಕ, ಹಿಡಿತವಿರುವ ಪಾದರಕ್ಷೆ.":"A light layer for hill evenings; comfortable shoes with grip.")
+    :(language==="kn"?"ನೀರು, ಸೂರ್ಯರಕ್ಷಣೆ ಮತ್ತು ಆರಾಮದಾಯಕ ನಡೆಪಾದರಕ್ಷೆ ಕೊಂಡೊಯ್ಯಿರಿ.":"Carry water, sun protection and comfortable walking shoes.");
+  document.getElementById("seasonCard").innerHTML=
+    `<p>${esc(seasonNote(plan.input.month))}</p><p><b>${esc(tr("packing"))}:</b> ${esc(pack)}</p>`+
+    (fNote?`<p><b>${esc(tr("festival"))}:</b> ${esc(fNote)}</p>`:"")+
+    `<p class="budget-note">${language==="kn"?"ನೇರ ಹವಾಮಾನ API ಈ ಡೆಮೊದಲ್ಲಿ ಸಂಪರ್ಕಗೊಂಡಿಲ್ಲ.":"Live weather is not connected in this demo."}</p>`;
+
+  document.getElementById("phraseDestination").textContent=
+    language==="kn"?"ಪ್ರಯಾಣಕ್ಕೆ ಉಪಯುಕ್ತ ಕನ್ನಡ ನುಡಿಗಳು":"USEFUL PHRASES FOR THE JOURNEY";
+  document.getElementById("phraseList").innerHTML=PHRASES.map((p,i)=>
+    `<div class="phrase-row">
+      <div><div class="phrase-kn">${esc(p.kn)}</div><div class="phrase-translit">${esc(p.say)}</div><div class="phrase-en">${esc(p.en)}</div></div>
+      <button class="listen-btn" data-speak="${esc(p.kn)}" aria-label="Speak Kannada phrase ${i+1}">🔊</button>
+    </div>`).join("");
+
+  document.getElementById("results").hidden=false;
+  document.getElementById("undoBtn").hidden=!previousPlan;
+  wireResultInteractions();
+}
+function wireResultInteractions(){
+  document.querySelectorAll("[data-day-filter]").forEach(btn=>{
+    btn.onclick=()=>{
+      document.querySelectorAll("[data-day-filter]").forEach(b=>b.classList.toggle("active",b===btn));
+      const selected=btn.dataset.dayFilter;
+      document.querySelectorAll("[data-day-group]").forEach(group=>group.hidden=selected!=="all"&&group.dataset.dayGroup!==selected);
+      document.querySelectorAll("[data-map-day]").forEach(pin=>pin.hidden=selected!=="all"&&pin.dataset.mapDay!==selected);
+    };
+  });
+  document.querySelectorAll("[data-stop-card]").forEach(card=>{
+    card.onclick=()=>{
+      document.querySelectorAll("[data-stop-card]").forEach(c=>c.classList.remove("selected"));
+      card.classList.add("selected");
+      document.querySelectorAll("[data-map-stop]").forEach(p=>p.classList.toggle("active",p.dataset.mapStop===card.dataset.stopCard));
+    };
+  });
+  document.querySelectorAll("[data-map-stop]").forEach(pin=>{
+    pin.onclick=()=>{
+      const card=document.getElementById("stop-"+pin.dataset.mapStop);
+      if(card){card.scrollIntoView({behavior:"smooth",block:"center"});card.click()}
+    };
+  });
+  document.querySelectorAll("[data-speak]").forEach(btn=>{
+    btn.onclick=()=>{
+      const phrase=btn.dataset.speak;
+      if(!("speechSynthesis" in window)||!("SpeechSynthesisUtterance" in window)){
+        toast(language==="kn"?"ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಧ್ವನಿ ಲಭ್ಯವಿಲ್ಲ.":"Speech is not available in this browser.");return;
+      }
+      try{
+        window.speechSynthesis.cancel();
+        const utterance=new SpeechSynthesisUtterance(phrase);
+        utterance.lang="kn-IN";utterance.rate=.84;
+        window.speechSynthesis.speak(utterance);toast(tr("audioToast"));
+      }catch{
+        toast(language==="kn"?"ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಧ್ವನಿ ಲಭ್ಯವಿಲ್ಲ.":"Speech is not available in this browser.");
+      }
+    };
+  });
+}
+function showGeneration(input,forcedCluster){
+  const box=document.getElementById("loadingBox");
+  const message=document.getElementById("loadingMessage");
+  const percent=document.getElementById("loadingPercent");
+  const bar=document.getElementById("loadingBar");
+  const btn=document.getElementById("generateBtn");
+  if(btn)btn.disabled=true;
+  box.hidden=false;
+  const messages=language==="kn"
+    ?["ನಿಮ್ಮ ಪ್ರವಾಸದ ಗತಿಯನ್ನು ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ…","ಕರ್ನಾಟಕದ ಆಯ್ದ ಸ್ಥಳಗಳನ್ನು ಹೊಂದಿಸಲಾಗುತ್ತಿದೆ…","ಅಂದಾಜು ವೆಚ್ಚ ಮತ್ತು ಸ್ಥಳೀಯ ಸಲಹೆ ಸೇರಿಸಲಾಗುತ್ತಿದೆ…"]
+    :["Reading your travel rhythm…","Matching places from our Karnataka guide…","Adding route, cost estimates and local tips…"];
+  let count=0;
+  const timer=setInterval(()=>{
+    count++;
+    const pct=Math.min(90,12+count*24);
+    percent.textContent=pct+"%";bar.style.width=pct+"%";
+    message.textContent=messages[Math.min(count-1,messages.length-1)];
+  },330);
+  setTimeout(()=>{
+    clearInterval(timer);percent.textContent="100%";bar.style.width="100%";
+    currentPlan=createPlan(input,forcedCluster);renderResults(currentPlan);
+    box.hidden=true;if(btn)btn.disabled=false;
+    document.getElementById("results").scrollIntoView({behavior:"smooth",block:"start"});
+    toast(language==="kn"?"ನಿಮ್ಮ ಮಾದರಿ ಪ್ರವಾಸ ಸಿದ್ಧವಾಗಿದೆ!":"Your demo itinerary is ready!");
+  },1250);
+}
+function summaryText(plan){
+  const label=CLUSTER_LABELS[plan.cluster]?.en||plan.cluster;
+  const lines=[`Namma Yatra: ${plan.actualDays}-day ${label} trip from ${plan.input.start}`];
+  plan.days.forEach(day=>lines.push(`Day ${day.number}: `+day.stops.map(d=>d.name).join(", ")));
+  lines.push(`Estimated budget for ${plan.input.group} traveller${plan.input.group>1?"s":""}: ${money(plan.costs.total)} (approximate, check current prices)`);
+  return lines.join("\n");
+}
+async function copyText(text){
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(text);return true;
+    }
+  }catch{}
+  try{
+    const area=document.createElement("textarea");
+    area.value=text;area.setAttribute("readonly","");
+    area.style.position="fixed";area.style.opacity="0";
+    document.body.appendChild(area);area.select();
+    const ok=document.execCommand("copy");area.remove();return ok;
+  }catch{return false}
+}
+
+document.getElementById("languageBtn").addEventListener("click",()=>{
+  language=language==="en"?"kn":"en";applyLanguage();
+});
+document.getElementById("themeBtn").addEventListener("click",()=>{
+  const root=document.documentElement;
+  const current=root.dataset.theme||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+  root.dataset.theme=current==="dark"?"light":"dark";
+});
+
+document.querySelectorAll("[data-step-tab]").forEach(btn=>btn.addEventListener("click",()=>setStep(Number(btn.dataset.stepTab))));
+document.querySelectorAll("[data-next]").forEach(btn=>btn.addEventListener("click",()=>setStep(activeStep+1)));
+document.querySelectorAll("[data-back]").forEach(btn=>btn.addEventListener("click",()=>setStep(activeStep-1)));
+document.querySelectorAll(".interest").forEach(btn=>btn.addEventListener("click",()=>{
+  const active=btn.classList.toggle("active");btn.setAttribute("aria-pressed",String(active));
+}));
+document.querySelectorAll(".choice-btn").forEach(btn=>btn.addEventListener("click",()=>{
+  document.querySelectorAll(".choice-btn").forEach(b=>b.classList.toggle("active",b===btn));
+}));
+document.getElementById("budget").addEventListener("input",e=>setBudget(e.target.value));
+document.querySelectorAll("[data-budget]").forEach(btn=>btn.addEventListener("click",()=>setBudget(btn.dataset.budget)));
+document.getElementById("offbeat").addEventListener("input",e=>{
+  document.getElementById("offbeatValue").textContent=e.target.value+"% hidden";
+});
+document.getElementById("wizardForm").addEventListener("submit",e=>{
+  e.preventDefault();const input=getFormInput();
+  if(!input.interests.length){toast(language==="kn"?"ಕನಿಷ್ಠ ಒಂದು ಆಸಕ್ತಿ ಆಯ್ಕೆಮಾಡಿ.":"Choose at least one interest.");setStep(2);return}
+  showGeneration(input,null);
+});
+
+document.getElementById("sampleBtn").addEventListener("click",()=>{
+  const sample={
+    start:"Bengaluru",month:"October",duration:3,group:2,budget:30000,
+    interests:["heritage","food","spiritual","nature"],pace:"balanced",offbeat:68,
+    traveller:"couple",transport:"mix",diet:"vegetarian",accessibility:"standard"
+  };
+  setFormInput(sample);setStep(3);
+  document.getElementById("planner").scrollIntoView({behavior:"smooth",block:"start"});
+  showGeneration(sample,"Mysuru");
+});
+document.getElementById("saveBtn").addEventListener("click",()=>{
+  if(!currentPlan)return;
+  try{localStorage.setItem("namma-yatra-saved-trip",JSON.stringify(currentPlan));toast(tr("savedToast"))}
+  catch{toast(language==="kn"?"ಈ ಸಾಧನದಲ್ಲಿ ಉಳಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.":"Could not save on this device.")}
+});
+document.getElementById("shareBtn").addEventListener("click",async()=>{
+  if(!currentPlan)return;
+  const ok=await copyText(summaryText(currentPlan));
+  toast(ok?tr("summaryCopied"):tr("copyFail"));
+});
+document.getElementById("refineForm").addEventListener("submit",e=>{
+  e.preventDefault();if(!currentPlan)return;
+  const command=document.getElementById("refineInput").value.trim().toLowerCase();
+  if(!command)return;
+  const next={...currentPlan.input,interests:[...currentPlan.input.interests]};
+  let forced=currentPlan.cluster,recognized=false;
+  if(/relax|slow|less packed|easy|ನಿಧಾನ/.test(command)){next.pace="relaxed";recognized=true}
+  if(/packed|more stops|busier|ತ್ವರಿತ/.test(command)){next.pace="packed";recognized=true}
+  if(/hidden|offbeat|local gem|ಅಪರಿಚಿತ/.test(command)){next.offbeat=92;recognized=true}
+  if(/coffee|ಕಾಫಿ/.test(command)){if(!next.interests.includes("coffee"))next.interests.push("coffee");forced="Coorg";recognized=true}
+  if(/beach|coast|ಕಡಲತೀರ/.test(command)){if(!next.interests.includes("beach"))next.interests.push("beach");forced="Coast";recognized=true}
+  if(/heritage|temple|ಪಾರಂಪರ್ಯ/.test(command)){if(!next.interests.includes("heritage"))next.interests.push("heritage");recognized=true}
+  if(!recognized){toast(tr("unknownRefine"));return}
+  previousPlan=currentPlan;setFormInput(next);
+  currentPlan=createPlan(next,forced);renderResults(currentPlan);
+  document.getElementById("refineInput").value="";toast(tr("refinedToast"));
+});
+document.getElementById("undoBtn").addEventListener("click",()=>{
+  if(!previousPlan)return;
+  currentPlan=previousPlan;previousPlan=null;setFormInput(currentPlan.input);renderResults(currentPlan);toast(tr("undoToast"));
+});
+
+applyLanguage();setStep(1);
+document.getElementById("budgetValue").textContent=money(document.getElementById("budget").value);
+</script>
+
+</body></html>
